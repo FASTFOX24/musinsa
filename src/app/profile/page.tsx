@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -32,13 +33,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <Container>
-        <HeaderContainer>
-          <HeaderContent>
-            <BackButton onClick={handleGoBack}>
-              &lt;
-            </BackButton>
-          </HeaderContent>
-        </HeaderContainer>
+        <Header />
         <MainContent>
           <LoadingMessage>로딩중...</LoadingMessage>
         </MainContent>
@@ -49,13 +44,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <Container>
-        <HeaderContainer>
-          <HeaderContent>
-            <BackButton onClick={handleGoBack}>
-              &lt;
-            </BackButton>
-          </HeaderContent>
-        </HeaderContainer>
+        <Header />
         <MainContent>
           <ErrorMessage>로그인이 필요합니다.</ErrorMessage>
           <Link href="/">
@@ -80,13 +69,7 @@ export default function ProfilePage() {
 
   return (
     <Container>
-      <HeaderContainer>
-        <HeaderContent>
-            <BackButton onClick={handleGoBack}>
-              &lt;
-            </BackButton>
-        </HeaderContent>
-      </HeaderContainer>
+      <Header />
 
       <MainContent>
         <ProfileContainer>
@@ -139,45 +122,6 @@ const Container = styled.div`
   background-color: #f8f9fa;
 `;
 
-const HeaderContainer = styled.header`
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e5e5;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-`;
-
-const HeaderContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-`;
-
-const BackButton = styled.button`
-  font-size: 24px;
-  font-weight: 600;
-  color: #000000;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 12px;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #f5f5f5;
-    transform: scale(1.05);
-  }
-`;
 
 const MainContent = styled.main`
   max-width: 800px;

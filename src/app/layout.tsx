@@ -3,6 +3,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { useState } from "react";
+import StyledComponentsRegistry from "@/lib/registry";
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -19,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SessionContextProvider supabaseClient={supabase}>
-          {children}
-        </SessionContextProvider>
+        <StyledComponentsRegistry>
+          <SessionContextProvider supabaseClient={supabase}>
+            {children}
+          </SessionContextProvider>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );
