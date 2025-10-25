@@ -2,44 +2,12 @@
 
 import styled from "styled-components";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
-import { useRouter } from "next/navigation";
+import { useSession } from "@supabase/auth-helpers-react";
 import Header from "@/components/Header";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const supabase = supabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-
-    getUser();
-  }, []);
-
-  const handleGoBack = () => {
-    router.back();
-  };
-
-  if (loading) {
-    return (
-      <Container>
-        <Header />
-        <MainContent>
-          <LoadingMessage>로딩중...</LoadingMessage>
-        </MainContent>
-      </Container>
-    );
-  }
+  const session = useSession();
+  const user = session?.user;
 
   if (!user) {
     return (
@@ -121,7 +89,6 @@ const Container = styled.div`
   min-height: 100vh;
   background-color: #f8f9fa;
 `;
-
 
 const MainContent = styled.main`
   max-width: 800px;
@@ -221,13 +188,6 @@ const ActionButton = styled.button`
   &:hover {
     background-color: #333333;
   }
-`;
-
-const LoadingMessage = styled.div`
-  text-align: center;
-  font-size: 18px;
-  color: #666666;
-  margin-bottom: 20px;
 `;
 
 const ErrorMessage = styled.div`
