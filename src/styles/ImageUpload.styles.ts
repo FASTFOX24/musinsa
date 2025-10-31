@@ -114,3 +114,33 @@ export const RemoveImageButton = styled.button`
     background-color: rgba(0, 0, 0, 0.9);
   }
 `;
+
+export const RepresentativeBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #111111 0%, #333333 100%);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  backdrop-filter: saturate(120%) blur(2px);
+  pointer-events: none;
+  user-select: none;
+`;
+
+export const RepresentativeHighlight = styled.div`
+  position: absolute;
+  inset: 0;
+  border: 2px solid #111111;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+`;

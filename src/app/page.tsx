@@ -4,24 +4,9 @@ import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ItemCard } from "@/components/common/ItemCard";
+import Header from "@/components/Header";
 import { SeasonFilter } from "@/components/common/SeasonFilter";
-import {
-  Container,
-  HeaderContainer,
-  HeaderContent,
-  Logo,
-  NavContainer,
-  ProfileButton,
-  LoginButton,
-  MainContent,
-  TopSection,
-  AddItemButton,
-  PrimaryButton,
-  ItemsGrid,
-  EmptyState,
-  EmptyTitle,
-  EmptyDescription,
-} from "@/styles/HomePage.styles";
+import * as S from "@/styles/HomePage.styles";
 import { useSession } from "@supabase/auth-helpers-react";
 
 type SeasonFlags = {
@@ -49,64 +34,29 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      setItems([]);
-      return;
-    }
+    const fetchItems = async () => {
+      if (!user) {
+        setItems([]);
+        return;
+      }
 
-    const sampleItems = [
-      {
-        id: "1",
-        brand: "나이키",
-        price: "89,000",
-        description: "편안한 착용감과 세련된 디자인의 운동화입니다.",
-        images: [
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
-          "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop",
-        ],
-        seasons: {
-          spring: true,
-          summer: true,
-          autumn: true,
-          winter: false,
-        },
-      },
-      {
-        id: "2",
-        brand: "아디다스",
-        price: "75,000",
-        description: "클래식한 디자인의 스니커즈입니다.",
-        images: [
-          "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop",
-        ],
-        seasons: {
-          spring: true,
-          summer: false,
-          autumn: true,
-          winter: true,
-        },
-      },
-      {
-        id: "3",
-        brand: "컨버스",
-        price: "65,000",
-        description: "캐주얼한 스타일의 캔버스 신발입니다.",
-        images: [
-          "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-          "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop",
-          "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop",
-        ],
-        seasons: {
-          spring: true,
-          summer: true,
-          autumn: false,
-          winter: false,
-        },
-      },
-    ];
+      try {
+        const { data, error } = await supabase
+          .from("items")
+          .select("id, images, seasons")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
 
-    setItems(sampleItems);
-  }, [user]);
+        if (error) throw error;
+        setItems((data || []) as Item[]);
+      } catch (err) {
+        console.error("아이템 목록 로딩 실패:", err);
+        setItems([]);
+      }
+    };
+
+    fetchItems();
+  }, [user, supabase]);
 
   const handleGoogleLogin = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -172,56 +122,57 @@ export default function Home() {
   });
 
   return (
-    <Container>
-      <HeaderContainer>
-        <HeaderContent>
-          <Logo href="/">musinsa</Logo>
-          <NavContainer>
+    <S.Container>
+      <Header
+        showBackButton={false}
+        leftContent={<S.Logo href="/">musinsa</S.Logo>}
+        rightContent={
+          <S.NavContainer>
             {user ? (
               <>
-                <ProfileButton href="/profile">
+                <S.ProfileButton href="/profile">
                   {user.user_metadata?.full_name ||
                     user.email?.split("@")[0] ||
                     "사용자"}
                   의 프로필
-                </ProfileButton>
-                <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
+                </S.ProfileButton>
+                <S.LoginButton onClick={handleLogout}>로그아웃</S.LoginButton>
               </>
             ) : (
-              <LoginButton onClick={handleGoogleLogin}>로그인</LoginButton>
+              <S.LoginButton onClick={handleGoogleLogin}>로그인</S.LoginButton>
             )}
-          </NavContainer>
-        </HeaderContent>
-      </HeaderContainer>
-      <MainContent>
+          </S.NavContainer>
+        }
+      />
+      <S.MainContent>
         {filteredItems.length > 0 && (
-          <TopSection>
+          <S.TopSection>
             <SeasonFilter
               selectedSeason={selectedSeason}
               onSeasonChange={handleSeasonChange}
             />
-            <AddItemButton onClick={handleAddItem}>아이템 추가</AddItemButton>
-          </TopSection>
+            <S.AddItemButton onClick={handleAddItem}>아이템 추가</S.AddItemButton>
+          </S.TopSection>
         )}
 
         {filteredItems.length === 0 ? (
-          <EmptyState>
-            <EmptyTitle>
+          <S.EmptyState>
+            <S.EmptyTitle>
               {!user || items.length === 0
                 ? "아이템이 없습니다"
                 : "필터에 맞는 아이템이 없습니다"}
-            </EmptyTitle>
-            <EmptyDescription>
+            </S.EmptyTitle>
+            <S.EmptyDescription>
               {!user || items.length === 0
                 ? "아이템을 추가하여 목록을 채워보세요."
                 : "다른 계절을 선택하거나 전체보기를 눌러보세요."}
-            </EmptyDescription>
-            <PrimaryButton onClick={handleAddItem}>
+            </S.EmptyDescription>
+            <S.PrimaryButton onClick={handleAddItem}>
               첫 아이템 추가
-            </PrimaryButton>
-          </EmptyState>
+            </S.PrimaryButton>
+          </S.EmptyState>
         ) : (
-          <ItemsGrid>
+          <S.ItemsGrid>
             {filteredItems.map((item) => (
               <ItemCard
                 key={item.id}
@@ -231,9 +182,9 @@ export default function Home() {
                 onClick={handleItemClick}
               />
             ))}
-          </ItemsGrid>
+          </S.ItemsGrid>
         )}
-      </MainContent>
-    </Container>
+      </S.MainContent>
+    </S.Container>
   );
 }

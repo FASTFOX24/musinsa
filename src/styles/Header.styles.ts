@@ -3,9 +3,12 @@ import styled from "styled-components";
 export const HeaderContainer = styled.header`
   background-color: #ffffff;
   border-bottom: 1px solid #e5e5e5;
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
 `;
 
 export const HeaderContent = styled.div`
@@ -14,6 +17,7 @@ export const HeaderContent = styled.div`
   padding: 0 16px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 60px;
   gap: 16px;
 
@@ -61,4 +65,10 @@ export const Title = styled.h1`
   @media (min-width: 1024px) {
     font-size: 24px;
   }
+`;
+
+export const RightActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
 `;

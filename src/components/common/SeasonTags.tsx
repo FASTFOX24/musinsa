@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  FormGroup,
-  Label,
-  Required,
-  SeasonTagsContainer,
-  SeasonTag,
-} from "@/styles/SeasonTags.styles";
+import * as S from "@/styles/SeasonTags.styles";
 
 interface SeasonTagsProps {
   seasons: {
@@ -22,41 +16,41 @@ export const SeasonTags: React.FC<SeasonTagsProps> = ({
   onSeasonChange,
 }) => {
   return (
-    <FormGroup>
-      <Label>
-        계절 태그 <Required>*</Required>
-      </Label>
-      <SeasonTagsContainer>
-        <SeasonTag
+    <S.FormGroup>
+      <S.Label>
+        계절 태그 <S.Required>*</S.Required>
+      </S.Label>
+      <S.SeasonTagsContainer>
+        <S.SeasonTag
           type="button"
           $active={seasons.spring}
           onClick={() => onSeasonChange("spring")}
         >
           봄
-        </SeasonTag>
-        <SeasonTag
+        </S.SeasonTag>
+        <S.SeasonTag
           type="button"
           $active={seasons.summer}
           onClick={() => onSeasonChange("summer")}
         >
           여름
-        </SeasonTag>
-        <SeasonTag
+        </S.SeasonTag>
+        <S.SeasonTag
           type="button"
           $active={seasons.autumn}
           onClick={() => onSeasonChange("autumn")}
         >
           가을
-        </SeasonTag>
-        <SeasonTag
+        </S.SeasonTag>
+        <S.SeasonTag
           type="button"
           $active={seasons.winter}
           onClick={() => onSeasonChange("winter")}
         >
           겨울
-        </SeasonTag>
-      </SeasonTagsContainer>
-    </FormGroup>
+        </S.SeasonTag>
+      </S.SeasonTagsContainer>
+    </S.FormGroup>
   );
 };
 

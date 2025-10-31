@@ -1,16 +1,5 @@
 import React from "react";
-import {
-  FormGroup,
-  Label,
-  Required,
-  ImageUploadArea,
-  ImageInput,
-  ImageUploadButton,
-  ImageGrid,
-  ImageContainer,
-  ImagePreview,
-  RemoveImageButton,
-} from "@/styles/ImageUpload.styles";
+import * as S from "@/styles/ImageUpload.styles";
 
 interface ImageUploadProps {
   images: string[];
@@ -24,12 +13,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   onRemoveImage,
 }) => {
   return (
-    <FormGroup>
-      <Label>
-        이미지 (최대 4개) <Required>*</Required>
-      </Label>
-      <ImageUploadArea>
-        <ImageInput
+    <S.FormGroup>
+      <S.Label>
+        이미지 (최대 4개) <S.Required>*</S.Required>
+      </S.Label>
+      <S.ImageUploadArea>
+        <S.ImageInput
           id="image-upload"
           type="file"
           accept="image/*"
@@ -37,7 +26,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           onChange={onImageUpload}
           disabled={images.length >= 4}
         />
-        <ImageUploadButton 
+        <S.ImageUploadButton 
           htmlFor={images.length >= 4 ? "" : "image-upload"}
           style={{ 
             cursor: images.length >= 4 ? 'not-allowed' : 'pointer',
@@ -45,22 +34,30 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           }}
         >
           {images.length >= 4 ? "최대 4개까지 추가 가능" : "이미지 추가"}
-        </ImageUploadButton>
-      </ImageUploadArea>
+        </S.ImageUploadButton>
+      </S.ImageUploadArea>
 
       {images.length > 0 && (
-        <ImageGrid>
+        <S.ImageGrid>
           {images.map((image, index) => (
-            <ImageContainer key={index}>
-              <ImagePreview src={image} alt={`이미지 ${index + 1}`} />
-              <RemoveImageButton type="button" onClick={() => onRemoveImage(index)}>
+            <S.ImageContainer key={index}>
+              {index === 0 && (
+                <>
+                  <S.RepresentativeBadge aria-label="대표 이미지">
+                    대표
+                  </S.RepresentativeBadge>
+                  <S.RepresentativeHighlight />
+                </>
+              )}
+              <S.ImagePreview src={image} alt={`이미지 ${index + 1}`} />
+              <S.RemoveImageButton type="button" onClick={() => onRemoveImage(index)}>
                 ×
-              </RemoveImageButton>
-            </ImageContainer>
+              </S.RemoveImageButton>
+            </S.ImageContainer>
           ))}
-        </ImageGrid>
+        </S.ImageGrid>
       )}
-    </FormGroup>
+    </S.FormGroup>
   );
 };
 

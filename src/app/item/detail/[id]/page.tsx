@@ -2,8 +2,12 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import styled from "styled-components";
 import Header from "@/components/Header";
+import { BackButton, Title } from "@/styles/Header.styles";
+import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
+import { extractStoragePathFromPublicUrl } from "@/utils/storage";
+import { getActiveSeasonNames } from "@/utils/season";
+import * as S from "@/styles/ItemDetailPage.styles";
 
 interface ItemData {
   id: string;
@@ -23,31 +27,53 @@ export default function ItemDetail() {
   const params = useParams();
   const router = useRouter();
   const itemId = params.id as string;
+  const supabase = supabaseBrowserClient();
   const [itemData, setItemData] = useState<ItemData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    // 임시 샘플 데이터 (실제로는 API에서 가져와야 함)
-    const sampleData: ItemData = {
-      id: itemId,
-      brand: "나이키",
-      price: "89,000",
-      description: "편안한 착용감과 세련된 디자인의 운동화입니다. 일상복과 캐주얼룩 모두에 잘 어울립니다.",
-      images: [
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop"
-      ],
-      seasons: {
-        spring: true,
-        summer: true,
-        autumn: true,
-        winter: false
+    const fetchItemData = async () => {
+      if (!itemId) return;
+
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("items")
+          .select("*")
+          .eq("id", itemId)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setItemData({
+            id: data.id,
+            brand: data.brand || "",
+            price: data.price || "",
+            description: data.description || "",
+            images: data.images || [],
+            seasons: data.seasons || {
+              spring: false,
+              summer: false,
+              autumn: false,
+              winter: false,
+            },
+          });
+        }
+      } catch (error: any) {
+        console.error("아이템 데이터 로딩 실패:", error);
+        alert("아이템을 불러오는데 실패했습니다.");
+        router.push("/");
+      } finally {
+        setIsLoading(false);
       }
     };
-    setItemData(sampleData);
-  }, [itemId]);
+
+    fetchItemData();
+  }, [itemId, supabase, router]);
 
   const handleEdit = () => {
     router.push(`/item/edit/${itemId}`);
@@ -57,10 +83,36 @@ export default function ItemDetail() {
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
-    // TODO: 실제 삭제 로직 구현
-    console.log("아이템 삭제:", itemId);
-    router.push("/");
+  const confirmDelete = async () => {
+    if (!itemId) return;
+    setIsDeleting(true);
+    try {
+      // 스토리지 이미지 제거 시도 (정책상 실패할 수 있으므로 실패해도 계속 진행)
+      try {
+        if (itemData?.images && itemData.images.length > 0) {
+          const paths = itemData.images
+            .map((url) => extractStoragePathFromPublicUrl(url, "item-images"))
+            .filter((p): p is string => !!p);
+          if (paths.length > 0) {
+            await supabase.storage.from("item-images").remove(paths);
+          }
+        }
+      } catch (e) {
+        console.warn("이미지 삭제 중 경고:", e);
+      }
+
+      // 아이템 레코드 삭제 (RLS로 본인 소유만 허용되어야 함)
+      const { error } = await supabase.from("items").delete().eq("id", itemId);
+      if (error) throw error;
+
+      setShowDeleteConfirm(false);
+      router.push("/");
+    } catch (err) {
+      console.error("아이템 삭제 실패:", err);
+      alert("아이템 삭제에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const cancelDelete = () => {
@@ -69,411 +121,118 @@ export default function ItemDetail() {
 
   const handlePreviousImage = () => {
     if (!itemData) return;
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === 0 ? itemData.images.length - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
     if (!itemData) return;
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === itemData.images.length - 1 ? 0 : prev + 1
     );
   };
 
-  if (!itemData) {
+  if (isLoading || !itemData) {
     return (
-      <Container>
-        <Header title="아이템 상세" />
-        <MainContent>
-          <LoadingText>로딩 중...</LoadingText>
-        </MainContent>
-      </Container>
+      <S.Container>
+        <Header
+          title="아이템 상세"
+          showBackButton={false}
+          leftContent={
+            <>
+              <BackButton onClick={() => router.push("/")}>{"<"}</BackButton>
+              <Title>아이템 상세</Title>
+            </>
+          }
+        />
+        <S.MainContent>
+          <S.LoadingText>로딩 중...</S.LoadingText>
+        </S.MainContent>
+      </S.Container>
     );
   }
 
-  const activeSeasons = Object.entries(itemData.seasons)
-    .filter(([_, isActive]) => isActive)
-    .map(([season, _]) => {
-      const seasonNames = { spring: "봄", summer: "여름", autumn: "가을", winter: "겨울" };
-      return seasonNames[season as keyof typeof seasonNames];
-    });
+  const activeSeasons = getActiveSeasonNames(itemData.seasons as any);
 
   return (
-    <Container>
-      <Header title="아이템 상세" />
-      
-      <MainContent>
-        <ItemContainer>
-          <ImageSection>
-            <MainImageContainer>
-              <ItemImage 
-                src={itemData.images[currentImageIndex]} 
-                alt={`이미지 ${currentImageIndex + 1}`} 
+    <S.Container>
+      <Header
+        title="아이템 상세"
+        showBackButton={false}
+        leftContent={
+          <>
+            <BackButton onClick={() => router.push("/")}>{"<"}</BackButton>
+            <Title>아이템 상세</Title>
+          </>
+        }
+      />
+
+      <S.MainContent>
+        <S.ItemContainer>
+          <S.ImageSection>
+            <S.MainImageContainer>
+              <S.ItemImage
+                src={itemData.images[currentImageIndex]}
+                alt={`이미지 ${currentImageIndex + 1}`}
               />
               {itemData.images.length > 1 && (
                 <>
-                  <PreviousButton onClick={handlePreviousImage}>
+                  <S.PreviousButton onClick={handlePreviousImage}>
                     ‹
-                  </PreviousButton>
-                  <NextButton onClick={handleNextImage}>
-                    ›
-                  </NextButton>
+                  </S.PreviousButton>
+                  <S.NextButton onClick={handleNextImage}>›</S.NextButton>
                 </>
               )}
-              <ImageCounter>
+              <S.ImageCounter>
                 {currentImageIndex + 1} / {itemData.images.length}
-              </ImageCounter>
-            </MainImageContainer>
-          </ImageSection>
+              </S.ImageCounter>
+            </S.MainImageContainer>
+          </S.ImageSection>
 
-          <InfoSection>
-            <ItemTitle>{itemData.brand}</ItemTitle>
-            <Price>{itemData.price}원</Price>
-            
-            <InfoGroup>
-              <InfoLabel>계절 태그</InfoLabel>
-              <SeasonTags>
+          <S.InfoSection>
+            <S.ItemTitle>{itemData.brand}</S.ItemTitle>
+            <S.Price>{itemData.price}원</S.Price>
+
+            <S.InfoGroup>
+              <S.InfoLabel>계절 태그</S.InfoLabel>
+              <S.SeasonTags>
                 {activeSeasons.map((season) => (
-                  <SeasonTag key={season}>{season}</SeasonTag>
+                  <S.SeasonTag key={season}>{season}</S.SeasonTag>
                 ))}
-              </SeasonTags>
-            </InfoGroup>
+              </S.SeasonTags>
+            </S.InfoGroup>
 
-            <InfoGroup>
-              <InfoLabel>상세 정보</InfoLabel>
-              <Description>{itemData.description}</Description>
-            </InfoGroup>
+            <S.InfoGroup>
+              <S.InfoLabel>상세 정보</S.InfoLabel>
+              <S.Description>{itemData.description}</S.Description>
+            </S.InfoGroup>
 
-            <ButtonGroup>
-              <EditButton onClick={handleEdit}>수정</EditButton>
-              <DeleteButton onClick={handleDelete}>삭제</DeleteButton>
-            </ButtonGroup>
-          </InfoSection>
-        </ItemContainer>
+            <S.ButtonGroup>
+              <S.EditButton onClick={handleEdit}>수정</S.EditButton>
+              <S.DeleteButton onClick={handleDelete}>삭제</S.DeleteButton>
+            </S.ButtonGroup>
+          </S.InfoSection>
+        </S.ItemContainer>
 
         {showDeleteConfirm && (
-          <DeleteModal>
-            <ModalContent>
-              <ModalTitle>아이템 삭제</ModalTitle>
-              <ModalMessage>정말로 이 아이템을 삭제하시겠습니까?</ModalMessage>
-              <ModalButtons>
-                <CancelButton onClick={cancelDelete}>취소</CancelButton>
-                <ConfirmDeleteButton onClick={confirmDelete}>삭제</ConfirmDeleteButton>
-              </ModalButtons>
-            </ModalContent>
-          </DeleteModal>
+          <S.DeleteModal>
+            <S.ModalContent>
+              <S.ModalTitle>아이템 삭제</S.ModalTitle>
+              <S.ModalMessage>정말로 이 아이템을 삭제하시겠습니까?</S.ModalMessage>
+              <S.ModalButtons>
+                <S.CancelButton onClick={cancelDelete}>취소</S.CancelButton>
+                <S.ConfirmDeleteButton
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "삭제 중..." : "삭제"}
+                </S.ConfirmDeleteButton>
+              </S.ModalButtons>
+            </S.ModalContent>
+          </S.DeleteModal>
         )}
-      </MainContent>
-    </Container>
+      </S.MainContent>
+    </S.Container>
   );
 }
-
-const Container = styled.div`
-  min-height: 100vh;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-`;
-
-const MainContent = styled.main`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-
-  @media (min-width: 768px) {
-    padding: 30px 20px;
-  }
-
-  @media (min-width: 1024px) {
-    padding: 40px 20px;
-  }
-`;
-
-const LoadingText = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  font-size: 18px;
-  color: #666666;
-`;
-
-const ItemContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-
-  @media (min-width: 768px) {
-    flex-direction: row;
-    gap: 40px;
-  }
-`;
-
-const ImageSection = styled.div`
-  flex: 1;
-`;
-
-const MainImageContainer = styled.div`
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  min-height: 300px;
-  background-color: #f5f5f5;
-
-  @media (min-width: 768px) {
-    min-height: 400px;
-  }
-
-  @media (min-width: 1024px) {
-    min-height: 500px;
-  }
-`;
-
-const ItemImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`;
-
-const PreviousButton = styled.button`
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-  }
-`;
-
-const NextButton = styled.button`
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-  }
-`;
-
-const ImageCounter = styled.div`
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-`;
-
-const InfoSection = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-`;
-
-const ItemTitle = styled.h1`
-  font-size: 28px;
-  font-weight: 700;
-  color: #333333;
-  margin: 0;
-`;
-
-const Price = styled.div`
-  font-size: 24px;
-  font-weight: 600;
-  color: #111111;
-`;
-
-const InfoGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const InfoLabel = styled.label`
-  font-size: 14px;
-  font-weight: 600;
-  color: #333333;
-`;
-
-const SeasonTags = styled.div`
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-`;
-
-const SeasonTag = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border: 1px solid #111111;
-  border-radius: 16px;
-  background-color: #111111;
-  color: #ffffff;
-`;
-
-const Description = styled.p`
-  font-size: 16px;
-  color: #666666;
-  line-height: 1.6;
-  margin: 0;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-
-  @media (max-width: 767px) {
-    flex-direction: column;
-  }
-`;
-
-const EditButton = styled.button`
-  font-size: 14px;
-  font-weight: 600;
-  color: #111111;
-  padding: 12px 24px;
-  border: 1px solid #111111;
-  border-radius: 6px;
-  background-color: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #f8f8f8;
-  }
-
-  @media (max-width: 767px) {
-    width: 100%;
-  }
-`;
-
-const DeleteButton = styled.button`
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
-  background-color: #ff4444;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #ff3333;
-  }
-
-  @media (max-width: 767px) {
-    width: 100%;
-  }
-`;
-
-const DeleteModal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 24px;
-  max-width: 400px;
-  width: 90%;
-`;
-
-const ModalTitle = styled.h3`
-  font-size: 18px;
-  font-weight: 600;
-  color: #333333;
-  margin: 0 0 16px 0;
-`;
-
-const ModalMessage = styled.p`
-  font-size: 14px;
-  color: #666666;
-  margin: 0 0 24px 0;
-`;
-
-const ModalButtons = styled.div`
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-`;
-
-const CancelButton = styled.button`
-  font-size: 14px;
-  font-weight: 600;
-  color: #666666;
-  padding: 8px 16px;
-  border: 1px solid #e5e5e5;
-  border-radius: 6px;
-  background-color: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #f8f8f8;
-  }
-`;
-
-const ConfirmDeleteButton = styled.button`
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  background-color: #ff4444;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #ff3333;
-  }
-`;

@@ -159,6 +159,7 @@ export const MainContent = styled.main`
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  margin-top: 60px;
 
   @media (min-width: 768px) {
     padding: 30px 20px;

@@ -8,27 +8,7 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-export const HeaderContainer = styled.header`
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e5e5;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-`;
-
-export const HeaderContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-
-  @media (min-width: 768px) {
-    padding: 0 20px;
-  }
-`;
+// 홈 헤더는 공용 Header 컴포넌트로 대체되었습니다.
 
 export const Logo = styled(Link)`
   font-size: 24px;
@@ -109,6 +89,7 @@ export const MainContent = styled.main`
   flex-direction: column;
   width: 1200px;
   height: 100%;
+  margin-top: 60px;
   @media (max-width: 768px) {
     width: 640px;
     padding: 40px 20px;

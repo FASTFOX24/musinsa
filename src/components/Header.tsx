@@ -1,19 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import {
-  HeaderContainer,
-  HeaderContent,
-  BackButton,
-  Title,
-} from "@/styles/Header.styles";
+import * as S from "@/styles/Header.styles";
 
 interface HeaderProps {
   title?: string;
   showBackButton?: boolean;
+  leftContent?: React.ReactNode;
+  rightContent?: React.ReactNode;
 }
 
-export default function Header({ title, showBackButton = true }: HeaderProps) {
+export default function Header({ title, showBackButton = true, leftContent, rightContent }: HeaderProps) {
   const router = useRouter();
 
   const handleGoBack = () => {
@@ -21,16 +18,25 @@ export default function Header({ title, showBackButton = true }: HeaderProps) {
   };
 
   return (
-    <HeaderContainer>
-      <HeaderContent>
-        {showBackButton && (
-          <BackButton onClick={handleGoBack}>
-            &lt;
-          </BackButton>
+    <S.HeaderContainer>
+      <S.HeaderContent>
+        {leftContent ? (
+          leftContent
+        ) : (
+          <>
+            {showBackButton && (
+              <S.BackButton onClick={handleGoBack}>
+                &lt;
+              </S.BackButton>
+            )}
+            {title && <S.Title>{title}</S.Title>}
+          </>
         )}
-        {title && <Title>{title}</Title>}
-      </HeaderContent>
-    </HeaderContainer>
+        <S.RightActions>
+          {rightContent}
+        </S.RightActions>
+      </S.HeaderContent>
+    </S.HeaderContainer>
   );
 }
 

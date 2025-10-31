@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  CardContainer,
-  ItemImage,
-  ItemInfo,
-  SeasonTags,
-  SeasonTag,
-} from "@/styles/ItemCard.styles";
+import { getActiveSeasonNames } from "@/utils/season";
+import * as S from "@/styles/ItemCard.styles";
 
 interface ItemCardProps {
   id: string;
@@ -25,24 +20,18 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   seasons,
   onClick,
 }) => {
-  const activeSeasons = Object.entries(seasons)
-    .filter(([_, isActive]) => isActive)
-    .map(([season, _]) => {
-      const seasonNames = { spring: "봄", summer: "여름", autumn: "가을", winter: "겨울" };
-      return seasonNames[season as keyof typeof seasonNames];
-    });
+  const activeSeasons = getActiveSeasonNames(seasons as any);
 
   return (
-    <CardContainer onClick={() => onClick(id)}>
-      <ItemImage src={images[0]} alt="아이템 이미지" />
-      <ItemInfo>
-        <SeasonTags>
+    <S.CardContainer onClick={() => onClick(id)}>
+      <S.ItemImage src={images[0]} alt="아이템 이미지" />
+      <S.ItemInfo>
+        <S.SeasonTags>
           {activeSeasons.map((season) => (
-            <SeasonTag key={season}>{season}</SeasonTag>
+            <S.SeasonTag key={season}>{season}</S.SeasonTag>
           ))}
-        </SeasonTags>
-      </ItemInfo>
-    </CardContainer>
+        </S.SeasonTags>
+      </S.ItemInfo>
+    </S.CardContainer>
   );
 };
-

@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
+import { useSession } from "@supabase/auth-helpers-react";
+import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import { PageLayout } from "@/components/common/PageLayout";
 import { ItemForm } from "@/components/common/ItemForm";
+import { dataUrlToBlob, guessExtFromDataUrl } from "@/utils/image";
 
 interface ItemFormData {
   brand: string;
@@ -38,6 +41,8 @@ export default function ItemPage() {
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
+  const session = useSession();
+  const supabase = supabaseBrowserClient();
   
   const [loading, setLoading] = useState(false);
   const [initialData, setInitialData] = useState<ItemFormData | undefined>(undefined);
@@ -52,64 +57,152 @@ export default function ItemPage() {
 
   // 데이터 로딩 (edit 모드일 때만)
   useEffect(() => {
-    if (pageMode === 'edit' && itemId) {
-      setIsLoadingData(true);
-      
-      // 임시 샘플 데이터 (실제로는 API에서 가져와야 함)
-      const sampleData: ItemData = {
-        id: itemId,
-        brand: "나이키",
-        price: "89,000",
-        description: "편안한 착용감과 세련된 디자인의 운동화입니다. 일상복과 캐주얼룩 모두에 잘 어울립니다.",
-        images: [
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
-          "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop",
-          "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop"
-        ],
-        seasons: {
-          spring: true,
-          summer: true,
-          autumn: true,
-          winter: false
-        }
-      };
+    const fetchItemData = async () => {
+      if (pageMode !== 'edit' || !itemId || !session?.user) {
+        return;
+      }
 
-      // 실제 API 호출을 시뮬레이션
-      setTimeout(() => {
-        setInitialData({
-          brand: sampleData.brand,
-          price: sampleData.price,
-          description: sampleData.description,
-          images: sampleData.images,
-          seasons: sampleData.seasons,
-        });
+      setIsLoadingData(true);
+      try {
+        const { data, error } = await supabase
+          .from('items')
+          .select('*')
+          .eq('id', itemId)
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setInitialData({
+            brand: data.brand || '',
+            price: data.price || '',
+            description: data.description || '',
+            images: data.images || [],
+            seasons: data.seasons || {
+              spring: false,
+              summer: false,
+              autumn: false,
+              winter: false
+            }
+          });
+        } else {
+          alert('아이템을 찾을 수 없습니다.');
+          router.push('/');
+        }
+      } catch (error: any) {
+        console.error('아이템 데이터 로딩 실패:', error);
+        alert('아이템을 불러오는데 실패했습니다.');
+        router.push('/');
+      } finally {
         setIsLoadingData(false);
-      }, 500);
-    }
-  }, [pageMode, itemId]);
+      }
+    };
+
+    fetchItemData();
+  }, [pageMode, itemId, session, supabase, router]);
 
   const handleSubmit = async (data: ItemFormData) => {
     setLoading(true);
-    
-    if (pageMode === 'add') {
-      // TODO: 실제 아이템 추가 로직 구현
-      console.log("아이템 추가:", data);
-      
-      // 임시로 1초 후 상세 페이지로 이동
-      setTimeout(() => {
-        router.push("/item/detail/1");
-      }, 1000);
-    } else {
-      // TODO: 실제 아이템 수정 로직 구현
-      console.log("아이템 수정:", {
-        id: itemId,
-        ...data,
-      });
-      
-      // 임시로 1초 후 상세 페이지로 이동
-      setTimeout(() => {
+    try {
+      if (!session?.user) {
+        alert("로그인이 필요합니다.");
+        router.push("/");
+        return;
+      }
+
+      if (pageMode === 'add') {
+        // 1) 이미지 업로드 (dataURL -> Blob 변환 후 Storage 업로드)
+        const uploadedImageUrls: string[] = [];
+        for (let i = 0; i < data.images.length; i++) {
+          const dataUrl = data.images[i];
+          const blob = dataUrlToBlob(dataUrl);
+          const fileExt = guessExtFromDataUrl(dataUrl) || 'png';
+          const filePath = `${session.user.id}/${Date.now()}-${i}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('item-images')
+            .upload(filePath, blob, { upsert: false, contentType: blob.type || `image/${fileExt}` });
+          if (uploadError) throw uploadError;
+
+          const { data: publicUrlData } = supabase.storage.from('item-images').getPublicUrl(filePath);
+          uploadedImageUrls.push(publicUrlData.publicUrl);
+        }
+
+        // 2) DB insert
+        const seasons = data.seasons;
+        const { data: inserted, error: insertError } = await supabase
+          .from('items')
+          .insert({
+            user_id: session.user.id,
+            brand: data.brand,
+            price: data.price,
+            description: data.description,
+            images: uploadedImageUrls,
+            seasons: seasons,
+          })
+          .select('id')
+          .single();
+        
+        if (insertError) throw insertError;
+        if (!inserted || !inserted.id) {
+          throw new Error('아이템 저장 후 ID를 가져오지 못했습니다.');
+        }
+
+        // 저장 성공 시 상세 페이지로 이동
+        router.push(`/item/detail/${inserted.id}`);
+      } else {
+        // 수정 모드
+        if (!itemId) {
+          throw new Error('아이템 ID가 없습니다.');
+        }
+
+        // 이미지 처리: dataURL인 경우 새로 업로드, URL인 경우 그대로 사용
+        const finalImageUrls: string[] = [];
+        for (let i = 0; i < data.images.length; i++) {
+          const image = data.images[i];
+          
+          // dataURL인 경우 (새로 추가된 이미지)
+          if (image.startsWith('data:')) {
+            const blob = dataUrlToBlob(image);
+            const fileExt = guessExtFromDataUrl(image) || 'png';
+            const filePath = `${session.user.id}/${Date.now()}-${i}.${fileExt}`;
+            const { error: uploadError } = await supabase.storage
+              .from('item-images')
+              .upload(filePath, blob, { upsert: false, contentType: blob.type || `image/${fileExt}` });
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: publicUrlData } = supabase.storage.from('item-images').getPublicUrl(filePath);
+            finalImageUrls.push(publicUrlData.publicUrl);
+          } else {
+            // 기존 URL인 경우 그대로 사용
+            finalImageUrls.push(image);
+          }
+        }
+
+        // DB 업데이트
+        const { error: updateError } = await supabase
+          .from('items')
+          .update({
+            brand: data.brand,
+            price: data.price,
+            description: data.description,
+            images: finalImageUrls,
+            seasons: data.seasons,
+          })
+          .eq('id', itemId)
+          .eq('user_id', session.user.id);
+
+        if (updateError) throw updateError;
+
+        // 수정 성공 시 상세 페이지로 이동
         router.push(`/item/detail/${itemId}`);
-      }, 1000);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(`저장 중 오류가 발생했습니다. 다시 시도해주세요.\n${err?.message || ''}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,3 +245,5 @@ export default function ItemPage() {
     </PageLayout>
   );
 }
+
+ 
