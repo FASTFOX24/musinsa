@@ -63,7 +63,7 @@ export default function ItemDetail() {
             },
           });
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("아이템 데이터 로딩 실패:", error);
         alert("아이템을 불러오는데 실패했습니다.");
         router.push("/");
@@ -153,7 +153,7 @@ export default function ItemDetail() {
     );
   }
 
-  const activeSeasons = getActiveSeasonNames(itemData.seasons as any);
+  const activeSeasons = getActiveSeasonNames(itemData.seasons);
 
   return (
     <S.Container>
@@ -219,7 +219,9 @@ export default function ItemDetail() {
           <S.DeleteModal>
             <S.ModalContent>
               <S.ModalTitle>아이템 삭제</S.ModalTitle>
-              <S.ModalMessage>정말로 이 아이템을 삭제하시겠습니까?</S.ModalMessage>
+              <S.ModalMessage>
+                정말로 이 아이템을 삭제하시겠습니까?
+              </S.ModalMessage>
               <S.ModalButtons>
                 <S.CancelButton onClick={cancelDelete}>취소</S.CancelButton>
                 <S.ConfirmDeleteButton

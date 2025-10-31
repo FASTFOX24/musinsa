@@ -20,7 +20,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   seasons,
   onClick,
 }) => {
-  const activeSeasons = getActiveSeasonNames(seasons as any);
+  const activeSeasons = getActiveSeasonNames(seasons);
 
   return (
     <S.CardContainer onClick={() => onClick(id)}>
