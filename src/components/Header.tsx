@@ -10,7 +10,12 @@ interface HeaderProps {
   rightContent?: React.ReactNode;
 }
 
-export default function Header({ title, showBackButton = true, leftContent, rightContent }: HeaderProps) {
+export default function Header({
+  title,
+  showBackButton = true,
+  leftContent,
+  rightContent,
+}: HeaderProps) {
   const router = useRouter();
 
   const handleGoBack = () => {
@@ -25,18 +30,13 @@ export default function Header({ title, showBackButton = true, leftContent, righ
         ) : (
           <>
             {showBackButton && (
-              <S.BackButton onClick={handleGoBack}>
-                &lt;
-              </S.BackButton>
+              <S.BackButton onClick={handleGoBack}>&lt;</S.BackButton>
             )}
             {title && <S.Title>{title}</S.Title>}
           </>
         )}
-        <S.RightActions>
-          {rightContent}
-        </S.RightActions>
+        <S.RightActions>{rightContent}</S.RightActions>
       </S.HeaderContent>
     </S.HeaderContainer>
   );
 }
-

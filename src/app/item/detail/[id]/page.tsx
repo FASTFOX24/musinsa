@@ -7,14 +7,17 @@ import { BackButton, Title } from "@/styles/Header.styles";
 import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import { extractStoragePathFromPublicUrl } from "@/utils/storage";
 import { getActiveSeasonNames } from "@/utils/season";
+import { getCategoryDisplayName, type CategoryKey } from "@/utils/category";
 import * as S from "@/styles/ItemDetailPage.styles";
 
 interface ItemData {
   id: string;
+  name?: string;
   brand: string;
   price: string;
   description: string;
   images: string[];
+  category?: CategoryKey | "";
   seasons: {
     spring: boolean;
     summer: boolean;
@@ -51,10 +54,12 @@ export default function ItemDetail() {
         if (data) {
           setItemData({
             id: data.id,
+            name: data.name || "",
             brand: data.brand || "",
             price: data.price || "",
             description: data.description || "",
             images: data.images || [],
+            category: (data.category as CategoryKey) || "",
             seasons: data.seasons || {
               spring: false,
               summer: false,
@@ -191,8 +196,20 @@ export default function ItemDetail() {
           </S.ImageSection>
 
           <S.InfoSection>
-            <S.ItemTitle>{itemData.brand}</S.ItemTitle>
-            <S.Price>{itemData.price}원</S.Price>
+            <S.ItemTitle>{itemData.name || itemData.brand}</S.ItemTitle>
+
+            <S.InfoGroup>
+              <S.InfoLabel>카테고리</S.InfoLabel>
+              <S.SeasonTags>
+                {itemData.category ? (
+                  <S.SeasonTag>
+                    {getCategoryDisplayName(itemData.category)}
+                  </S.SeasonTag>
+                ) : (
+                  <></>
+                )}
+              </S.SeasonTags>
+            </S.InfoGroup>
 
             <S.InfoGroup>
               <S.InfoLabel>계절 태그</S.InfoLabel>
@@ -201,6 +218,16 @@ export default function ItemDetail() {
                   <S.SeasonTag key={season}>{season}</S.SeasonTag>
                 ))}
               </S.SeasonTags>
+            </S.InfoGroup>
+
+            <S.InfoGroup>
+              <S.InfoLabel>브랜드</S.InfoLabel>
+              <div>{itemData.brand}</div>
+            </S.InfoGroup>
+
+            <S.InfoGroup>
+              <S.InfoLabel>가격</S.InfoLabel>
+              <S.Price>{itemData.price}원</S.Price>
             </S.InfoGroup>
 
             <S.InfoGroup>

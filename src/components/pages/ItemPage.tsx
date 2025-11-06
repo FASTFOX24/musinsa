@@ -7,12 +7,15 @@ import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import { PageLayout } from "@/components/common/PageLayout";
 import { ItemForm } from "@/components/common/ItemForm";
 import { dataUrlToBlob, guessExtFromDataUrl } from "@/utils/image";
+import { type CategoryKey } from "@/utils/category";
 
 interface ItemFormData {
+  name: string;
   brand: string;
   price: string;
   description: string;
   images: string[];
+  category?: CategoryKey | "";
   seasons: {
     spring: boolean;
     summer: boolean;
@@ -23,10 +26,12 @@ interface ItemFormData {
 
 interface ItemData {
   id: string;
+  name?: string;
   brand: string;
   price: string;
   description: string;
   images: string[];
+  category?: CategoryKey | "";
   seasons: {
     spring: boolean;
     summer: boolean;
@@ -77,10 +82,12 @@ export default function ItemPage() {
 
         if (data) {
           setInitialData({
+            name: data.name || "",
             brand: data.brand || "",
             price: data.price || "",
             description: data.description || "",
             images: data.images || [],
+            category: (data.category as CategoryKey) || "",
             seasons: data.seasons || {
               spring: false,
               summer: false,
@@ -141,10 +148,12 @@ export default function ItemPage() {
           .from("items")
           .insert({
             user_id: session.user.id,
+            name: data.name, // column이 없는 경우 무시됨
             brand: data.brand,
             price: data.price,
             description: data.description,
             images: uploadedImageUrls,
+            category: data.category,
             seasons: seasons,
           })
           .select("id")
@@ -196,10 +205,12 @@ export default function ItemPage() {
         const { error: updateError } = await supabase
           .from("items")
           .update({
+            name: data.name,
             brand: data.brand,
             price: data.price,
             description: data.description,
             images: finalImageUrls,
+            category: data.category,
             seasons: data.seasons,
           })
           .eq("id", itemId)

@@ -12,12 +12,16 @@ import {
   CancelButton,
   SubmitButton,
 } from "./FormComponents";
+import * as SeasonTagStyles from "@/styles/SeasonTags.styles";
+import { categoryKeys, categoryDisplayNameMap, type CategoryKey } from "@/utils/category";
 
 interface ItemFormData {
+  name: string;
   brand: string;
   price: string;
   description: string;
   images: string[];
+  category?: CategoryKey | "";
   seasons: {
     spring: boolean;
     summer: boolean;
@@ -43,9 +47,17 @@ export const ItemForm: React.FC<ItemFormProps> = ({
   loadingText,
   isLoading,
 }) => {
+  const [name, setName] = React.useState(initialData.name || "");
   const [brand, setBrand] = React.useState(initialData.brand || "");
-  const [description, setDescription] = React.useState(initialData.description || "");
-  const [images, setImages] = React.useState<string[]>(initialData.images || []);
+  const [description, setDescription] = React.useState(
+    initialData.description || ""
+  );
+  const [images, setImages] = React.useState<string[]>(
+    initialData.images || []
+  );
+  const [category, setCategory] = React.useState<CategoryKey | "">(
+    (initialData.category as CategoryKey) || ""
+  );
   const [seasons, setSeasons] = React.useState({
     spring: false,
     summer: false,
@@ -54,7 +66,9 @@ export const ItemForm: React.FC<ItemFormProps> = ({
     ...initialData.seasons,
   });
 
-  const { value: price, handleChange: handlePriceChange } = usePriceFormat(initialData.price || "");
+  const { value: price, handleChange: handlePriceChange } = usePriceFormat(
+    initialData.price || ""
+  );
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -85,18 +99,31 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (images.length === 0 || !Object.values(seasons).some(Boolean)) return;
+    if (
+      !name.trim() ||
+      !category ||
+      images.length === 0 ||
+      !Object.values(seasons).some(Boolean)
+    )
+      return;
 
     onSubmit({
+      name,
       brand,
       price,
       description,
       images,
+      category,
       seasons,
     });
   };
 
-  const isSubmitDisabled = isLoading || images.length === 0 || !Object.values(seasons).some(Boolean);
+  const isSubmitDisabled =
+    isLoading ||
+    !name.trim() ||
+    !category ||
+    images.length === 0 ||
+    !Object.values(seasons).some(Boolean);
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -106,10 +133,38 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         onRemoveImage={handleRemoveImage}
       />
 
-      <SeasonTags
-        seasons={seasons}
-        onSeasonChange={handleSeasonChange}
-      />
+      <FormGroup>
+        <Label htmlFor="name">
+          아이템 이름 <SeasonTagStyles.Required>*</SeasonTagStyles.Required>
+        </Label>
+        <Input
+          id="name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="아이템 이름을 입력하세요"
+        />
+      </FormGroup>
+
+      <SeasonTagStyles.FormGroup>
+        <SeasonTagStyles.Label>
+          카테고리 <SeasonTagStyles.Required>*</SeasonTagStyles.Required>
+        </SeasonTagStyles.Label>
+        <SeasonTagStyles.SeasonTagsContainer>
+          {categoryKeys.map((categoryKey) => (
+            <SeasonTagStyles.SeasonTag
+              key={categoryKey}
+              type="button"
+              $active={category === categoryKey}
+              onClick={() => setCategory(category === categoryKey ? "" : categoryKey)}
+            >
+              {categoryDisplayNameMap[categoryKey]}
+            </SeasonTagStyles.SeasonTag>
+          ))}
+        </SeasonTagStyles.SeasonTagsContainer>
+      </SeasonTagStyles.FormGroup>
+
+      <SeasonTags seasons={seasons} onSeasonChange={handleSeasonChange} />
 
       <FormGroup>
         <Label htmlFor="brand">브랜드</Label>

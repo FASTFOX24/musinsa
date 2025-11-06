@@ -4,6 +4,7 @@ import * as S from "@/styles/ItemCard.styles";
 
 interface ItemCardProps {
   id: string;
+  name?: string;
   images: string[];
   seasons: {
     spring: boolean;
@@ -16,6 +17,7 @@ interface ItemCardProps {
 
 export const ItemCard: React.FC<ItemCardProps> = ({
   id,
+  name,
   images,
   seasons,
   onClick,
@@ -26,6 +28,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
     <S.CardContainer onClick={() => onClick(id)}>
       <S.ItemImage src={images[0]} alt="아이템 이미지" />
       <S.ItemInfo>
+        {name && <S.ItemName>{name}</S.ItemName>}
         <S.SeasonTags>
           {activeSeasons.map((season) => (
             <S.SeasonTag key={season}>{season}</S.SeasonTag>

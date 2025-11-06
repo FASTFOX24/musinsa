@@ -22,6 +22,9 @@ export default function RootLayout({ // RootLayout은 개발자가 직접 import
 
   return (
     <html lang="en">
+      <head>
+        <title>Musinsa-Bay</title>
+      </head>
       <body>
         <StyledComponentsRegistry>
           <SessionContextProvider supabaseClient={supabase}>

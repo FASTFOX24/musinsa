@@ -34,6 +34,17 @@ export const ItemInfo = styled.div`
   gap: 8px;
 `;
 
+export const ItemName = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 4px;
+
+  @media (min-width: 768px) {
+    font-size: 15px;
+  }
+`;
+
 export const SeasonTags = styled.div`
   display: flex;
   gap: 6px;

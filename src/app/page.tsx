@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ItemCard } from "@/components/common/ItemCard";
 import Header from "@/components/Header";
 import { SeasonFilter } from "@/components/common/SeasonFilter";
+import { ChatModal } from "@/components/common/ChatModal";
 import * as S from "@/styles/HomePage.styles";
 import { useSession } from "@supabase/auth-helpers-react";
 
@@ -18,6 +19,7 @@ type SeasonFlags = {
 
 type Item = {
   id: string;
+  name?: string;
   brand: string;
   price: string;
   description: string;
@@ -31,6 +33,7 @@ export default function Home() {
   const user = session?.user;
   const [items, setItems] = useState<Item[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<string>("all");
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from("items")
-          .select("id, images, seasons")
+          .select("id, name, images, seasons")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
@@ -125,7 +128,7 @@ export default function Home() {
     <S.Container>
       <Header
         showBackButton={false}
-        leftContent={<S.Logo href="/">musinsa</S.Logo>}
+        leftContent={<S.Logo href="/">Musinsa-Bay</S.Logo>}
         rightContent={
           <S.NavContainer>
             {user ? (
@@ -151,7 +154,9 @@ export default function Home() {
               selectedSeason={selectedSeason}
               onSeasonChange={handleSeasonChange}
             />
-            <S.AddItemButton onClick={handleAddItem}>아이템 추가</S.AddItemButton>
+            <S.AddItemButton onClick={handleAddItem}>
+              아이템 추가
+            </S.AddItemButton>
           </S.TopSection>
         )}
 
@@ -177,6 +182,7 @@ export default function Home() {
               <ItemCard
                 key={item.id}
                 id={item.id}
+                name={item.name}
                 images={item.images}
                 seasons={item.seasons}
                 onClick={handleItemClick}
@@ -185,6 +191,13 @@ export default function Home() {
           </S.ItemsGrid>
         )}
       </S.MainContent>
+      <S.FloatingButton onClick={() => setIsChatModalOpen(true)}>
+        💬
+      </S.FloatingButton>
+      <ChatModal
+        isOpen={isChatModalOpen}
+        onClose={() => setIsChatModalOpen(false)}
+      />
     </S.Container>
   );
 }
