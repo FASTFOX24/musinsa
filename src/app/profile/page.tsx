@@ -1,13 +1,20 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "@supabase/auth-helpers-react";
+import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import Header from "@/components/Header";
 import * as S from "@/styles/ProfilePage.styles";
 
 export default function ProfilePage() {
   const session = useSession();
   const user = session?.user;
+  const router = useRouter();
+  const supabase = supabaseBrowserClient();
+
+  const handleGoBack = () => {
+    router.back();
+  };
 
   if (!user) {
     return (
@@ -15,9 +22,7 @@ export default function ProfilePage() {
         <Header />
         <S.MainContent>
           <S.ErrorMessage>로그인이 필요합니다.</S.ErrorMessage>
-          <Link href="/">
-            <S.HomeButton>홈으로 돌아가기</S.HomeButton>
-          </Link>
+          <S.HomeButton onClick={handleGoBack}>뒤로가기</S.HomeButton>
         </S.MainContent>
       </S.Container>
     );
@@ -33,6 +38,22 @@ export default function ProfilePage() {
     "사용자 ID": user.id || "정보 없음",
     프로바이더: user.app_metadata?.provider || "정보 없음",
     아바타: user.user_metadata?.avatar_url || null,
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        await supabase.auth.signOut();
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -75,9 +96,8 @@ export default function ProfilePage() {
           </S.InfoGrid>
 
           <S.ActionButtons>
-            <Link href="/">
-              <S.ActionButton>홈으로 돌아가기</S.ActionButton>
-            </Link>
+            <S.ActionButton onClick={handleGoBack}>뒤로가기</S.ActionButton>
+            <S.LogoutButton onClick={handleLogout}>로그아웃</S.LogoutButton>
           </S.ActionButtons>
         </S.ProfileContainer>
       </S.MainContent>

@@ -128,3 +128,19 @@ export const HomeButton = styled.button`
   }
 `;
 
+export const LogoutButton = styled.button`
+  padding: 12px 24px;
+  background-color: #dc3545;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #c82333;
+  }
+`;
+

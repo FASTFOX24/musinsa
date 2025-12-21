@@ -71,7 +71,7 @@ export default function ItemDetail() {
       } catch (error: unknown) {
         console.error("아이템 데이터 로딩 실패:", error);
         alert("아이템을 불러오는데 실패했습니다.");
-        router.push("/");
+        router.push("/list");
       } finally {
         setIsLoading(false);
       }
@@ -111,7 +111,7 @@ export default function ItemDetail() {
       if (error) throw error;
 
       setShowDeleteConfirm(false);
-      router.push("/");
+      router.push("/list");
     } catch (err) {
       console.error("아이템 삭제 실패:", err);
       alert("아이템 삭제에 실패했습니다. 다시 시도해주세요.");
@@ -146,7 +146,7 @@ export default function ItemDetail() {
           showBackButton={false}
           leftContent={
             <>
-              <BackButton onClick={() => router.push("/")}>{"<"}</BackButton>
+              <BackButton onClick={() => router.push("/list")}>{"<"}</BackButton>
               <Title>아이템 상세</Title>
             </>
           }
@@ -167,7 +167,7 @@ export default function ItemDetail() {
         showBackButton={false}
         leftContent={
           <>
-            <BackButton onClick={() => router.push("/")}>{"<"}</BackButton>
+            <BackButton onClick={() => router.push("/list")}>{"<"}</BackButton>
             <Title>아이템 상세</Title>
           </>
         }

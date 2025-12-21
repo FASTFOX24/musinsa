@@ -97,12 +97,12 @@ export default function ItemPage() {
           });
         } else {
           alert("아이템을 찾을 수 없습니다.");
-          router.push("/");
+          router.push("/list");
         }
       } catch (error: unknown) {
         console.error("아이템 데이터 로딩 실패:", error);
         alert("아이템을 불러오는데 실패했습니다.");
-        router.push("/");
+        router.push("/list");
       } finally {
         setIsLoadingData(false);
       }
@@ -116,7 +116,7 @@ export default function ItemPage() {
     try {
       if (!session?.user) {
         alert("로그인이 필요합니다.");
-        router.push("/");
+        router.push("/list");
         return;
       }
 
@@ -238,7 +238,7 @@ export default function ItemPage() {
 
   const handleCancel = () => {
     if (pageMode === "add") {
-      router.push("/");
+      router.push("/list");
     } else {
       router.push(`/item/detail/${itemId}`);
     }
