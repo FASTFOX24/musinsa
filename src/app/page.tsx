@@ -234,9 +234,6 @@ export default function Home() {
                             이미지 없음
                           </S.RecommendedItemPlaceholder>
                         )}
-                        <S.RecommendedItemName>
-                          {item.name}
-                        </S.RecommendedItemName>
                       </S.RecommendedItem>
                     ))}
                   </S.RecommendedItemsContainer>

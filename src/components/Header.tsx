@@ -79,8 +79,8 @@ export default function Header({
                     <Image
                       src="/profile-icon.png"
                       alt="프로필"
-                      width={32}
-                      height={32}
+                      width={24}
+                      height={24}
                     />
                   </S.ProfileImageWrapper>
                 </S.ProfileButton>
