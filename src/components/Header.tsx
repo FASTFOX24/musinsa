@@ -110,21 +110,21 @@ export default function Header({ title, leftContentType }: HeaderProps) {
       </S.HeaderContent>
       <S.MobileMenu $isOpen={isMobileMenuOpen}>
         <S.MobileMenuContent>
+          {user ? (
+            <S.MobileLoginButton onClick={() => handleNavClick("/profile")}>
+              프로필
+            </S.MobileLoginButton>
+          ) : (
+            <S.MobileLoginButton onClick={handleGoogleLogin}>
+              로그인
+            </S.MobileLoginButton>
+          )}
           <S.MobileNavButton onClick={() => handleNavClick("/")}>
             채팅
           </S.MobileNavButton>
           <S.MobileNavButton onClick={() => handleNavClick("/list")}>
             내 옷장
           </S.MobileNavButton>
-          {user ? (
-            <S.MobileNavButton onClick={() => handleNavClick("/profile")}>
-              프로필
-            </S.MobileNavButton>
-          ) : (
-            <S.MobileLoginButton onClick={handleGoogleLogin}>
-              로그인
-            </S.MobileLoginButton>
-          )}
         </S.MobileMenuContent>
       </S.MobileMenu>
       {isMobileMenuOpen && (
