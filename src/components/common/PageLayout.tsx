@@ -11,7 +11,7 @@ interface PageLayoutProps {
 export const PageLayout: React.FC<PageLayoutProps> = ({ title, children }) => {
   return (
     <Container>
-      <Header title={title} />
+      <Header title={title} leftContentType="back" />
       <MainContent>
         {children}
       </MainContent>

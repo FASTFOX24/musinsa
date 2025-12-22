@@ -23,7 +23,7 @@ export const Logo = styled(Link)`
   text-decoration: none;
   letter-spacing: -0.5px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     font-size: 28px;
   }
 
@@ -37,7 +37,7 @@ export const NavContainer = styled.nav`
   align-items: center;
   gap: 12px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     gap: 20px;
   }
 `;
@@ -53,7 +53,12 @@ export const ProfileButton = styled(Link)`
   background-color: #ffffff;
   transition: all 0.2s ease;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  @media (min-width: 1024px) {
     font-size: 14px;
     padding: 8px 16px;
   }
@@ -76,7 +81,12 @@ export const LoginButton = styled.button`
   background-color: #ffffff;
   transition: all 0.2s ease;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  @media (min-width: 1024px) {
     font-size: 14px;
     padding: 8px 16px;
   }
@@ -96,22 +106,13 @@ export const MessagesContainer = styled.div`
   gap: 16px;
   min-height: 320px;
 
+  /* 스크롤바 숨기기 */
   &::-webkit-scrollbar {
-    width: 6px;
+    display: none;
   }
 
-  &::-webkit-scrollbar-track {
-    background: #f5f5f5;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #d5d5d5;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: #b5b5b5;
-  }
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 `;
 
 export const Message = styled.div<{ $isUser: boolean }>`

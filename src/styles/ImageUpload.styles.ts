@@ -57,7 +57,7 @@ export const ImageGrid = styled.div`
   gap: 12px;
   margin-top: 16px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
@@ -75,7 +75,7 @@ export const ImageContainer = styled.div`
   overflow: hidden;
   min-height: 120px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     aspect-ratio: 1;
     min-height: 150px;
   }

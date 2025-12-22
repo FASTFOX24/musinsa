@@ -72,7 +72,7 @@ export const ButtonGroup = styled.div`
     flex-direction: column;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     flex-direction: row;
   }
 
@@ -101,7 +101,7 @@ export const CancelButton = styled.button`
     width: 100%;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     width: auto;
   }
 
@@ -134,7 +134,7 @@ export const SubmitButton = styled.button`
     width: 100%;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     width: auto;
   }
 
@@ -161,7 +161,7 @@ export const MainContent = styled.main`
   width: 100%;
   margin-top: 60px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     padding: 30px 20px;
   }
 
