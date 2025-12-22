@@ -218,7 +218,7 @@ export const MobileMenu = styled.div<{ $isOpen: boolean }>`
     position: fixed;
     top: 60px;
     right: 0;
-    width: 280px;
+    width: 240px;
     height: calc(100vh - 60px);
     background-color: #ffffff;
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
@@ -233,18 +233,19 @@ export const MobileMenu = styled.div<{ $isOpen: boolean }>`
 export const MobileMenuContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
-  gap: 16px;
+  align-items: center;
+  padding: 0 16px;
 `;
 
 export const MobileNavButton = styled.button`
+  width: 200px;
   font-size: 16px;
   font-weight: 600;
   color: #000000;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 12px 16px;
+  padding: 20px 0px;
   border-radius: 8px;
   text-align: left;
   transition: all 0.2s ease;
@@ -255,6 +256,7 @@ export const MobileNavButton = styled.button`
 `;
 
 export const MobileLoginButton = styled.button`
+  width: 100%;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
@@ -262,38 +264,14 @@ export const MobileLoginButton = styled.button`
   border: none;
   cursor: pointer;
   padding: 12px 16px;
+  margin-top: 16px;
+  margin-bottom: 10px;
   border-radius: 8px;
   text-align: center;
   transition: all 0.2s ease;
-  margin-top: 8px;
 
   &:hover {
     background-color: #333333;
-  }
-`;
-
-export const MobileProfileButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #000000;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 12px 16px;
-  border-radius: 8px;
-  text-align: left;
-  transition: all 0.2s ease;
-  margin-top: 8px;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
-
-  span {
-    flex: 1;
   }
 `;
 
