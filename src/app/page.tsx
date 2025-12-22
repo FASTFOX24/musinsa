@@ -204,10 +204,7 @@ export default function Home() {
 
   return (
     <S.PageWrapper>
-      <Header
-        showBackButton={false}
-        leftContent={<S.Logo href="/">Musinsa-Bay</S.Logo>}
-      />
+      <Header leftContentType="logo" />
       <S.MessagesContainer>
         {messages.map((message, index) => {
           const isUser = message.sender === "user";

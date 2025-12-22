@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@supabase/auth-helpers-react";
 import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
@@ -8,27 +9,18 @@ import * as S from "@/styles/Header.styles";
 
 interface HeaderProps {
   title?: string;
-  showBackButton?: boolean;
-  leftContent?: React.ReactNode;
-  rightContent?: React.ReactNode;
+  leftContentType?: "logo" | "back";
 }
 
-export default function Header({
-  title,
-  showBackButton = true,
-  leftContent,
-  rightContent,
-}: HeaderProps) {
+export default function Header({ title, leftContentType }: HeaderProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const session = useSession();
   const user = session?.user;
   const supabase = supabaseBrowserClient();
 
-  const handleGoBack = () => {
-    router.back();
-  };
-
   const handleGoogleLogin = async () => {
+    setIsMobileMenuOpen(false);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -49,50 +41,95 @@ export default function Header({
 
   const handleProfileClick = () => {
     router.push("/profile");
+    setIsMobileMenuOpen(false);
   };
+
+  const handleNavClick = (path: string) => {
+    router.push(path);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <S.HeaderContainer>
       <S.HeaderContent>
-        {leftContent ? (
-          leftContent
-        ) : (
+        {leftContentType === "logo" ? (
+          <S.Logo href="/">Musinsa-Bay</S.Logo>
+        ) : leftContentType === "back" ? (
           <>
-            {showBackButton && (
-              <S.BackButton onClick={handleGoBack}>&lt;</S.BackButton>
-            )}
+            <S.BackButton onClick={() => router.push("/list")}>
+              &lt;
+            </S.BackButton>
             {title && <S.Title>{title}</S.Title>}
           </>
-        )}
+        ) : null}
         <S.NavContainer>
-          <S.NavButton onClick={() => router.push("/")}>채팅</S.NavButton>
-          <S.NavButton onClick={() => router.push("/list")}>내 옷장</S.NavButton>
+          <S.NavButton onClick={() => handleNavClick("/")}>채팅</S.NavButton>
+          <S.NavButton onClick={() => handleNavClick("/list")}>
+            내 옷장
+          </S.NavButton>
         </S.NavContainer>
         <S.RightActions>
-          {rightContent ? (
-            rightContent
+          {user ? (
+            <S.ProfileButton onClick={handleProfileClick}>
+              <S.ProfileImageWrapper>
+                <Image
+                  src="/profile-icon.png"
+                  alt="프로필"
+                  width={24}
+                  height={24}
+                />
+              </S.ProfileImageWrapper>
+            </S.ProfileButton>
           ) : (
-            <>
-              {user ? (
-                <S.ProfileButton onClick={handleProfileClick}>
-                  <S.ProfileImageWrapper>
-                    <Image
-                      src="/profile-icon.png"
-                      alt="프로필"
-                      width={24}
-                      height={24}
-                    />
-                  </S.ProfileImageWrapper>
-                </S.ProfileButton>
-              ) : (
-                <S.LoginButton onClick={handleGoogleLogin}>
-                  로그인
-                </S.LoginButton>
-              )}
-            </>
+            <S.LoginButton onClick={handleGoogleLogin}>로그인</S.LoginButton>
           )}
         </S.RightActions>
+        <S.HamburgerButton onClick={handleMobileMenuToggle}>
+          <S.HamburgerIcon $isOpen={isMobileMenuOpen}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </S.HamburgerIcon>
+        </S.HamburgerButton>
       </S.HeaderContent>
+      <S.MobileMenu $isOpen={isMobileMenuOpen}>
+        <S.MobileMenuContent>
+          <S.MobileNavButton onClick={() => handleNavClick("/")}>
+            채팅
+          </S.MobileNavButton>
+          <S.MobileNavButton onClick={() => handleNavClick("/list")}>
+            내 옷장
+          </S.MobileNavButton>
+          {user ? (
+            <S.MobileNavButton onClick={() => handleNavClick("/profile")}>
+              프로필
+            </S.MobileNavButton>
+          ) : (
+            <S.MobileLoginButton onClick={handleGoogleLogin}>
+              로그인
+            </S.MobileLoginButton>
+          )}
+        </S.MobileMenuContent>
+      </S.MobileMenu>
+      {isMobileMenuOpen && (
+        <S.MobileMenuOverlay onClick={handleMobileMenuToggle} />
+      )}
     </S.HeaderContainer>
   );
 }

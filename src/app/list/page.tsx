@@ -125,10 +125,7 @@ export default function ListPage() {
 
   return (
     <S.Container>
-      <Header
-        showBackButton={false}
-        leftContent={<S.Logo href="/">Musinsa-Bay</S.Logo>}
-      />
+      <Header leftContentType="logo" />
       <S.MainContent>
         {user && items.length > 0 && (
           <S.TopSection>

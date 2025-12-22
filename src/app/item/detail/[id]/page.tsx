@@ -3,7 +3,6 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import { BackButton, Title } from "@/styles/Header.styles";
 import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import { extractStoragePathFromPublicUrl } from "@/utils/storage";
 import { getActiveSeasonNames } from "@/utils/season";
@@ -143,13 +142,7 @@ export default function ItemDetail() {
       <S.Container>
         <Header
           title="아이템 상세"
-          showBackButton={false}
-          leftContent={
-            <>
-              <BackButton onClick={() => router.push("/list")}>{"<"}</BackButton>
-              <Title>아이템 상세</Title>
-            </>
-          }
+          leftContentType="back"
         />
         <S.MainContent>
           <S.LoadingText>로딩 중...</S.LoadingText>
@@ -164,13 +157,7 @@ export default function ItemDetail() {
     <S.Container>
       <Header
         title="아이템 상세"
-        showBackButton={false}
-        leftContent={
-          <>
-            <BackButton onClick={() => router.push("/list")}>{"<"}</BackButton>
-            <Title>아이템 상세</Title>
-          </>
-        }
+        leftContentType="back"
       />
 
       <S.MainContent>

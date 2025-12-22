@@ -22,7 +22,11 @@ export const ItemImage = styled.img`
   object-fit: cover;
   background-color: #f5f5f5;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    height: 220px;
+  }
+
+  @media (min-width: 1024px) {
     height: 220px;
   }
 `;
@@ -40,7 +44,11 @@ export const ItemName = styled.div`
   color: #333333;
   margin-bottom: 4px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 15px;
+  }
+
+  @media (min-width: 1024px) {
     font-size: 15px;
   }
 `;
@@ -59,7 +67,12 @@ export const SeasonTag = styled.span`
   background-color: #f0f0f0;
   color: #666666;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+
+  @media (min-width: 1024px) {
     font-size: 13px;
     padding: 5px 10px;
   }

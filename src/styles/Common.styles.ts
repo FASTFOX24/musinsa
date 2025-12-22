@@ -113,7 +113,7 @@ export const MainContent = styled.main`
   margin: 0 auto;
   width: 100%;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     padding: 30px 20px;
   }
 
@@ -128,7 +128,7 @@ export const Grid = styled.div<{ columns?: number }>`
   grid-template-columns: repeat(${props => props.columns || 1}, minmax(0, 1fr));
   gap: 12px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     gap: 16px;
   }
 
