@@ -27,7 +27,12 @@ export const DropdownButton = styled.button`
     border-color: #111111;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    width: 220px;
+    padding: 14px 18px;
+  }
+
+  @media (min-width: 1024px) {
     width: 220px;
     padding: 14px 18px;
   }
@@ -38,7 +43,11 @@ export const DropdownText = styled.span`
   font-weight: 500;
   color: #333333;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 15px;
+  }
+
+  @media (min-width: 1024px) {
     font-size: 15px;
   }
 `;

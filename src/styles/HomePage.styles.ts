@@ -17,7 +17,7 @@ export const Logo = styled(Link)`
   text-decoration: none;
   letter-spacing: -0.5px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     font-size: 28px;
   }
 
@@ -31,7 +31,7 @@ export const NavContainer = styled.nav`
   align-items: center;
   gap: 12px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     gap: 20px;
   }
 `;
@@ -47,7 +47,12 @@ export const ProfileButton = styled(Link)`
   background-color: #ffffff;
   transition: all 0.2s ease;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  @media (min-width: 1024px) {
     font-size: 14px;
     padding: 8px 16px;
   }
@@ -70,7 +75,12 @@ export const LoginButton = styled.button`
   background-color: #ffffff;
   transition: all 0.2s ease;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  @media (min-width: 1024px) {
     font-size: 14px;
     padding: 8px 16px;
   }
@@ -90,9 +100,14 @@ export const MainContent = styled.main`
   width: 1200px;
   height: 100%;
   margin-top: 60px;
-  @media (max-width: 768px) {
-    width: 640px;
-    padding: 40px 20px;
+  @media (max-width: 767px) {
+    width: 100%;
+    padding: 20px 16px;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    width: 100%;
+    padding: 30px 20px;
   }
 `;
 
@@ -103,7 +118,7 @@ export const TopSection = styled.div`
   margin-bottom: 24px;
   gap: 16px;
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -126,7 +141,7 @@ export const AddItemButton = styled.button`
     background-color: #222222;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     padding: 14px 24px;
     font-size: 15px;
   }
@@ -143,7 +158,12 @@ export const PrimaryButton = styled.button`
   transition: background-color 0.2s ease;
   width: 100%;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    width: auto;
+    padding: 10px 16px;
+  }
+
+  @media (min-width: 1024px) {
     width: auto;
     padding: 10px 16px;
   }
@@ -158,17 +178,14 @@ export const ItemsGrid = styled.div`
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 12px;
 
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
 
   @media (min-width: 1024px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  @media (min-width: 1200px) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
   }
 `;
 
@@ -183,7 +200,7 @@ export const EmptyState = styled.div`
   text-align: center;
   background-color: #fafafa;
   flex: 1;
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     padding: 40px 20px;
   }
 `;
@@ -194,7 +211,7 @@ export const EmptyTitle = styled.h2`
   font-weight: 700;
   color: #333333;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     font-size: 20px;
   }
 `;
@@ -204,7 +221,7 @@ export const EmptyDescription = styled.p`
   font-size: 13px;
   color: #666666;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     font-size: 14px;
   }
 `;
@@ -238,7 +255,7 @@ export const FloatingButton = styled.button`
     transform: scale(0.95);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     bottom: 20px;
     right: 20px;
     width: 52px;

@@ -112,7 +112,30 @@ export const ErrorMessage = styled.div`
   margin-bottom: 20px;
 `;
 
+export const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
 export const HomeButton = styled.button`
+  padding: 12px 24px;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #333333;
+  }
+`;
+
+export const LoginButton = styled.button`
   padding: 12px 24px;
   background-color: #000000;
   color: #ffffff;

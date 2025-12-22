@@ -16,13 +16,36 @@ export default function ProfilePage() {
     router.back();
   };
 
+  const handleGoogleLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${
+          window.location.origin
+        }/api/auth/callback?redirect=${encodeURIComponent(
+          window.location.pathname
+        )}`,
+      },
+    });
+
+    if (error) {
+      alert("로그인에 실패하였습니다. 다시 시도해주세요.");
+    } else {
+      console.log("리다이렉트 중...", data);
+    }
+  };
+
   if (!user) {
     return (
       <S.Container>
-        <Header />
+        <Header leftContentType="back"/>
         <S.MainContent>
           <S.ErrorMessage>로그인이 필요합니다.</S.ErrorMessage>
-          <S.HomeButton onClick={handleGoBack}>뒤로가기</S.HomeButton>
+          <S.ButtonContainer>
+            <S.LoginButton onClick={handleGoogleLogin}>
+              로그인 하러가기
+            </S.LoginButton>
+          </S.ButtonContainer>
         </S.MainContent>
       </S.Container>
     );
@@ -58,7 +81,7 @@ export default function ProfilePage() {
 
   return (
     <S.Container>
-      <Header />
+      <Header leftContentType="back"/>
 
       <S.MainContent>
         <S.ProfileContainer>
@@ -96,7 +119,6 @@ export default function ProfilePage() {
           </S.InfoGrid>
 
           <S.ActionButtons>
-            <S.ActionButton onClick={handleGoBack}>뒤로가기</S.ActionButton>
             <S.LogoutButton onClick={handleLogout}>로그아웃</S.LogoutButton>
           </S.ActionButtons>
         </S.ProfileContainer>
