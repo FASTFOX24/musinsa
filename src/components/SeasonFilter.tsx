@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getSeasonDisplayName } from "@/utils/season";
 import * as S from "@/styles/SeasonFilter.styles";
+import { type SeasonFilterProps } from "@/types/component";
 
-interface SeasonFilterProps {
-  selectedSeason: string;
-  onSeasonChange: (season: string) => void;
-}
-
-export const SeasonFilter: React.FC<SeasonFilterProps> = ({
+const SeasonFilter: React.FC<SeasonFilterProps> = ({
   selectedSeason,
   onSeasonChange,
 }) => {
@@ -87,3 +83,5 @@ export const SeasonFilter: React.FC<SeasonFilterProps> = ({
     </S.DropdownContainer>
   );
 };
+
+export default SeasonFilter;

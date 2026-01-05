@@ -10,6 +10,3 @@ export interface ChatMessage {
   timestamp: Date;
   recommendedItems?: RecommendedItem[];
 }
-
-
-

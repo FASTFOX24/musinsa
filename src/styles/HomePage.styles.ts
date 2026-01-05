@@ -8,8 +8,6 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-// 홈 헤더는 공용 Header 컴포넌트로 대체되었습니다.
-
 export const Logo = styled(Link)`
   font-size: 24px;
   font-weight: 700;

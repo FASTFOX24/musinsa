@@ -1,7 +1,7 @@
-import React from "react";
+import { useState } from "react";
 import { usePriceFormat } from "@/hooks/usePriceFormat";
-import { ImageUpload } from "./ImageUpload";
-import { SeasonTags } from "./SeasonTags";
+import ImageUpload from "./ImageUpload";
+import SeasonTags from "./SeasonTags";
 import {
   Form,
   FormGroup,
@@ -11,63 +11,40 @@ import {
   ButtonGroup,
   CancelButton,
   SubmitButton,
-} from "./FormComponents";
+} from "../styles/ItmeForm.styles";
 import * as SeasonTagStyles from "@/styles/SeasonTags.styles";
-import { categoryKeys, categoryDisplayNameMap, type CategoryKey } from "@/utils/category";
+import {
+  categoryKeys,
+  categoryDisplayNameMap,
+  type CategoryKey,
+} from "@/utils/category";
+import { type ItemFormData, type ItemFormProps } from "@/types/item";
 
-interface ItemFormData {
-  name: string;
-  brand: string;
-  price: string;
-  description: string;
-  images: string[];
-  category?: CategoryKey | "";
-  seasons: {
-    spring: boolean;
-    summer: boolean;
-    autumn: boolean;
-    winter: boolean;
-  };
-}
-
-interface ItemFormProps {
-  initialData?: Partial<ItemFormData>;
-  onSubmit: (data: ItemFormData) => void;
-  onCancel: () => void;
-  submitButtonText: string;
-  loadingText: string;
-  isLoading: boolean;
-}
-
-export const ItemForm: React.FC<ItemFormProps> = ({
+const ItemPage: React.FC<ItemFormProps> = ({
   initialData = {},
   onSubmit,
   onCancel,
   submitButtonText,
-  loadingText,
-  isLoading,
 }) => {
-  const [name, setName] = React.useState(initialData.name || "");
-  const [brand, setBrand] = React.useState(initialData.brand || "");
-  const [description, setDescription] = React.useState(
-    initialData.description || ""
+  const [name, setName] = useState(initialData?.name || "");
+  const [brand, setBrand] = useState(initialData?.brand || "");
+  const [description, setDescription] = useState(
+    initialData?.description || ""
   );
-  const [images, setImages] = React.useState<string[]>(
-    initialData.images || []
+  const [images, setImages] = useState<string[]>(initialData?.images || []);
+  const [category, setCategory] = useState<CategoryKey | "">(
+    (initialData?.category as CategoryKey) || ""
   );
-  const [category, setCategory] = React.useState<CategoryKey | "">(
-    (initialData.category as CategoryKey) || ""
-  );
-  const [seasons, setSeasons] = React.useState({
+  const [seasons, setSeasons] = useState({
     spring: false,
     summer: false,
     autumn: false,
     winter: false,
-    ...initialData.seasons,
+    ...initialData?.seasons,
   });
 
   const { value: price, handleChange: handlePriceChange } = usePriceFormat(
-    initialData.price || ""
+    initialData?.price || ""
   );
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,7 +96,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
   };
 
   const isSubmitDisabled =
-    isLoading ||
     !name.trim() ||
     !category ||
     images.length === 0 ||
@@ -156,7 +132,9 @@ export const ItemForm: React.FC<ItemFormProps> = ({
               key={categoryKey}
               type="button"
               $active={category === categoryKey}
-              onClick={() => setCategory(category === categoryKey ? "" : categoryKey)}
+              onClick={() =>
+                setCategory(category === categoryKey ? "" : categoryKey)
+              }
             >
               {categoryDisplayNameMap[categoryKey]}
             </SeasonTagStyles.SeasonTag>
@@ -200,13 +178,15 @@ export const ItemForm: React.FC<ItemFormProps> = ({
       </FormGroup>
 
       <ButtonGroup>
+        <SubmitButton type="submit" disabled={isSubmitDisabled}>
+          {submitButtonText}
+        </SubmitButton>
         <CancelButton type="button" onClick={onCancel}>
           취소
         </CancelButton>
-        <SubmitButton type="submit" disabled={isSubmitDisabled}>
-          {isLoading ? loadingText : submitButtonText}
-        </SubmitButton>
       </ButtonGroup>
     </Form>
   );
 };
+
+export default ItemPage;

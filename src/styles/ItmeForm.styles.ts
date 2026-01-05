@@ -1,10 +1,14 @@
 import styled from "styled-components";
 
-// Form Components
 export const Form = styled.form`
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 24px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 70px auto 0;
+  width: 100%;
 `;
 
 export const FormGroup = styled.div`
@@ -62,7 +66,6 @@ export const TextArea = styled.textarea`
   }
 `;
 
-// Button Components
 export const ButtonGroup = styled.div`
   display: flex;
   gap: 12px;
@@ -143,7 +146,6 @@ export const SubmitButton = styled.button`
   }
 `;
 
-// Layout Components
 export const Container = styled.div`
   min-height: 100vh;
   background-color: #ffffff;

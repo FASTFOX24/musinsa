@@ -8,22 +8,7 @@ import { extractStoragePathFromPublicUrl } from "@/utils/storage";
 import { getActiveSeasonNames } from "@/utils/season";
 import { getCategoryDisplayName, type CategoryKey } from "@/utils/category";
 import * as S from "@/styles/ItemDetailPage.styles";
-
-interface ItemData {
-  id: string;
-  name?: string;
-  brand: string;
-  price: string;
-  description: string;
-  images: string[];
-  category?: CategoryKey | "";
-  seasons: {
-    spring: boolean;
-    summer: boolean;
-    autumn: boolean;
-    winter: boolean;
-  };
-}
+import { type ItemData } from "@/types/item";
 
 export default function ItemDetail() {
   const params = useParams();
@@ -91,7 +76,6 @@ export default function ItemDetail() {
     if (!itemId) return;
     setIsDeleting(true);
     try {
-      // 스토리지 이미지 제거 시도 (정책상 실패할 수 있으므로 실패해도 계속 진행)
       try {
         if (itemData?.images && itemData.images.length > 0) {
           const paths = itemData.images
@@ -105,7 +89,6 @@ export default function ItemDetail() {
         console.warn("이미지 삭제 중 경고:", e);
       }
 
-      // 아이템 레코드 삭제 (RLS로 본인 소유만 허용되어야 함)
       const { error } = await supabase.from("items").delete().eq("id", itemId);
       if (error) throw error;
 
@@ -140,10 +123,7 @@ export default function ItemDetail() {
   if (isLoading || !itemData) {
     return (
       <S.Container>
-        <Header
-          title="아이템 상세"
-          leftContentType="back"
-        />
+        <Header title="아이템 상세" leftContentType="back" />
         <S.MainContent>
           <S.LoadingText>로딩 중...</S.LoadingText>
         </S.MainContent>
@@ -155,10 +135,7 @@ export default function ItemDetail() {
 
   return (
     <S.Container>
-      <Header
-        title="아이템 상세"
-        leftContentType="back"
-      />
+      <Header title="아이템 상세" leftContentType="back" />
 
       <S.MainContent>
         <S.ItemContainer>

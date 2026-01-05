@@ -1,20 +1,8 @@
 import React from "react";
 import * as S from "@/styles/SeasonTags.styles";
+import { type SeasonTagsProps } from "@/types/component";
 
-interface SeasonTagsProps {
-  seasons: {
-    spring: boolean;
-    summer: boolean;
-    autumn: boolean;
-    winter: boolean;
-  };
-  onSeasonChange: (season: keyof SeasonTagsProps['seasons']) => void;
-}
-
-export const SeasonTags: React.FC<SeasonTagsProps> = ({
-  seasons,
-  onSeasonChange,
-}) => {
+const SeasonTags: React.FC<SeasonTagsProps> = ({ seasons, onSeasonChange }) => {
   return (
     <S.FormGroup>
       <S.Label>
@@ -54,3 +42,4 @@ export const SeasonTags: React.FC<SeasonTagsProps> = ({
   );
 };
 
+export default SeasonTags;
