@@ -6,11 +6,7 @@ import { useSession } from "@supabase/auth-helpers-react";
 import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import Image from "next/image";
 import * as S from "@/styles/Header.styles";
-
-interface HeaderProps {
-  title?: string;
-  leftContentType?: "logo" | "back";
-}
+import { type HeaderProps } from "@/types/component";
 
 export default function Header({ title, leftContentType }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

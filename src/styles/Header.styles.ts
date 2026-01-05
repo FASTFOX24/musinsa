@@ -51,12 +51,8 @@ export const Title = styled.h1`
   color: #000000;
   margin: 0;
 
-  @media (min-width: 768px) and (max-width: 1023px) {
+  @media (min-width: 768px) {
     font-size: 20px;
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 24px;
   }
 `;
 
@@ -75,7 +71,6 @@ export const NavContainer = styled.div`
   align-items: center;
   gap: 8px;
   margin-left: auto;
-  margin-right: 16px;
 
   @media (max-width: 767px) {
     display: none;
@@ -148,12 +143,8 @@ export const Logo = styled(Link)`
   text-decoration: none;
   letter-spacing: -0.5px;
 
-  @media (min-width: 768px) and (max-width: 1023px) {
+  @media (min-width: 768px) {
     font-size: 24px;
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 28px;
   }
 
   &:hover {

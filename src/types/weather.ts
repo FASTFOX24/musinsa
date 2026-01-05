@@ -1,4 +1,3 @@
-// 날씨 API 타입 정의
 export type WeatherItem = {
   baseDate: string;
   baseTime: string;

@@ -13,17 +13,8 @@ export const MainContent = styled.main`
   flex-direction: column;
   padding: 20px;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 70px auto 0;
   width: 100%;
-  margin-top: 60px;
-
-  @media (min-width: 768px) and (max-width: 1023px) {
-    padding: 30px 20px;
-  }
-
-  @media (min-width: 1024px) {
-    padding: 40px 20px;
-  }
 `;
 
 export const LoadingText = styled.div`
@@ -40,12 +31,7 @@ export const ItemContainer = styled.div`
   flex-direction: column;
   gap: 24px;
 
-  @media (min-width: 768px) and (max-width: 1023px) {
-    flex-direction: row;
-    gap: 40px;
-  }
-
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     flex-direction: row;
     gap: 40px;
   }
@@ -63,13 +49,6 @@ export const MainImageContainer = styled.div`
   min-height: 300px;
   background-color: #f5f5f5;
 
-  @media (min-width: 768px) and (max-width: 1023px) {
-    min-height: 400px;
-  }
-
-  @media (min-width: 1024px) {
-    min-height: 500px;
-  }
 `;
 
 export const ItemImage = styled.img`
