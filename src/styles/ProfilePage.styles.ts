@@ -16,6 +16,10 @@ export const ProfileContainer = styled.div`
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 40px;
+
+  @media (max-width: 479px) {
+    padding: 24px 20px;
+  }
 `;
 
 export const ProfileHeader = styled.div`
@@ -49,10 +53,18 @@ export const DefaultAvatar = styled.div`
 `;
 
 export const ProfileTitle = styled.h1`
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 700;
   color: #000000;
   margin: 0;
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 24px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 28px;
+  }
 `;
 
 export const InfoGrid = styled.div`
@@ -64,10 +76,17 @@ export const InfoGrid = styled.div`
 
 export const InfoItem = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
   padding: 16px 0;
   border-bottom: 1px solid #f0f0f0;
+
+  @media (min-width: 767px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0;
+  }
 `;
 
 export const InfoLabel = styled.span`
@@ -80,7 +99,12 @@ export const InfoValue = styled.span`
   font-size: 16px;
   font-weight: 500;
   color: #000000;
-  text-align: right;
+  word-break: break-word;
+  overflow-wrap: break-word;
+
+  @media (min-width: 767px) {
+    text-align: right;
+  }
 `;
 
 export const ActionButtons = styled.div`
@@ -166,4 +190,3 @@ export const LogoutButton = styled.button`
     background-color: #c82333;
   }
 `;
-

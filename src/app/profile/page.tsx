@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@supabase/auth-helpers-react";
 import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
@@ -11,10 +12,7 @@ export default function ProfilePage() {
   const user = session?.user;
   const router = useRouter();
   const supabase = supabaseBrowserClient();
-
-  const handleGoBack = () => {
-    router.back();
-  };
+  const [imageError, setImageError] = useState(false);
 
   const handleGoogleLogin = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -27,7 +25,6 @@ export default function ProfilePage() {
         )}`,
       },
     });
-
     if (error) {
       alert("로그인에 실패하였습니다. 다시 시도해주세요.");
     } else {
@@ -38,7 +35,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <S.Container>
-        <Header leftContentType="back"/>
+        <Header leftContentType="back" />
         <S.MainContent>
           <S.ErrorMessage>로그인이 필요합니다.</S.ErrorMessage>
           <S.ButtonContainer>
@@ -81,14 +78,17 @@ export default function ProfilePage() {
 
   return (
     <S.Container>
-      <Header leftContentType="back"/>
-
+      <Header leftContentType="back" />
       <S.MainContent>
         <S.ProfileContainer>
           <S.ProfileHeader>
             <S.AvatarContainer>
-              {userInfo.아바타 ? (
-                <S.Avatar src={userInfo.아바타} alt="프로필 이미지" />
+              {userInfo.아바타 && !imageError ? (
+                <S.Avatar
+                  src={userInfo.아바타}
+                  alt="프로필 이미지"
+                  onError={() => setImageError(true)}
+                />
               ) : (
                 <S.DefaultAvatar>{userInfo.이름.charAt(0)}</S.DefaultAvatar>
               )}

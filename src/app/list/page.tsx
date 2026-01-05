@@ -3,28 +3,12 @@
 import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ItemCard } from "@/components/common/ItemCard";
+import ItemCard from "@/components/ItemCard";
 import Header from "@/components/Header";
-import { SeasonFilter } from "@/components/common/SeasonFilter";
+import SeasonFilter from "@/components/SeasonFilter";
 import * as S from "@/styles/HomePage.styles";
 import { useSession } from "@supabase/auth-helpers-react";
-
-type SeasonFlags = {
-  spring: boolean;
-  summer: boolean;
-  autumn: boolean;
-  winter: boolean;
-};
-
-type Item = {
-  id: string;
-  name?: string;
-  brand: string;
-  price: string;
-  description: string;
-  images: string[];
-  seasons: SeasonFlags;
-};
+import { type Item } from "@/types/item";
 
 export default function ListPage() {
   const supabase = supabaseBrowserClient();

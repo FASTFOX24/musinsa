@@ -1,18 +1,12 @@
-/**
- * 위도/경도를 기상청 격자 좌표로 변환하는 함수
- * @param lat 위도 (degree)
- * @param lon 경도 (degree)
- * @returns 격자 좌표 { nx, ny }
- */
 export const convertLatLonToGrid = (lat: number, lon: number) => {
-  const RE = 6371.00877; // 지구 반경(km)
-  const GRID = 5.0; // 격자 간격(km)
-  const SLAT1 = 30.0; // 투영 위도1(degree)
-  const SLAT2 = 60.0; // 투영 위도2(degree)
-  const OLON = 126.0; // 기준점 경도(degree)
-  const OLAT = 38.0; // 기준점 위도(degree)
-  const XO = 43; // 기준점 X좌표(GRID)
-  const YO = 136; // 기준점 Y좌표(GRID)
+  const RE = 6371.00877;
+  const GRID = 5.0;
+  const SLAT1 = 30.0;
+  const SLAT2 = 60.0;
+  const OLON = 126.0;
+  const OLAT = 38.0;
+  const XO = 43;
+  const YO = 136;
 
   const DEGRAD = Math.PI / 180.0;
 

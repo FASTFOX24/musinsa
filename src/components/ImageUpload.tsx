@@ -1,13 +1,8 @@
 import React from "react";
 import * as S from "@/styles/ImageUpload.styles";
+import { type ImageUploadProps } from "@/types/component";
 
-interface ImageUploadProps {
-  images: string[];
-  onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onRemoveImage: (index: number) => void;
-}
-
-export const ImageUpload: React.FC<ImageUploadProps> = ({
+const ImageUpload: React.FC<ImageUploadProps> = ({
   images,
   onImageUpload,
   onRemoveImage,
@@ -60,4 +55,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     </S.FormGroup>
   );
 };
+
+export default ImageUpload;
 

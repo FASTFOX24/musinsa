@@ -1,21 +1,9 @@
 import React from "react";
 import { getActiveSeasonNames } from "@/utils/season";
 import * as S from "@/styles/ItemCard.styles";
+import { type ItemCardProps } from "@/types/component";
 
-interface ItemCardProps {
-  id: string;
-  name?: string;
-  images: string[];
-  seasons: {
-    spring: boolean;
-    summer: boolean;
-    autumn: boolean;
-    winter: boolean;
-  };
-  onClick: (id: string) => void;
-}
-
-export const ItemCard: React.FC<ItemCardProps> = ({
+const ItemCard: React.FC<ItemCardProps> = ({
   id,
   name,
   images,
@@ -38,3 +26,5 @@ export const ItemCard: React.FC<ItemCardProps> = ({
     </S.CardContainer>
   );
 };
+
+export default ItemCard;

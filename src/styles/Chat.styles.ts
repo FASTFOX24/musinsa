@@ -6,7 +6,6 @@ export const PageWrapper = styled.main`
   height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
   padding-top: 61px;
   display: flex;
   justify-content: center;
@@ -100,19 +99,18 @@ export const LoginButton = styled.button`
 export const MessagesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 20px 20px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-height: 320px;
 
-  /* 스크롤바 숨기기 */
   &::-webkit-scrollbar {
     display: none;
   }
 
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 export const Message = styled.div<{ $isUser: boolean }>`
@@ -177,7 +175,7 @@ export const LoadingDot = styled.div`
 export const InputContainer = styled.div`
   display: flex;
   gap: 8px;
-  padding: 18px 20px;
+  padding: 18px 16px;
   background-color: #ffffff;
 `;
 

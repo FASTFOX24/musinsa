@@ -17,7 +17,6 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser();
 
       if (user?.id) {
-        // 현재 사용자 아이템 존재 여부 확인 (최초 가입 판단)
         const { count, error: countError } = await supabase
           .from("items")
           .select("id", { count: "exact", head: true })
@@ -31,11 +30,10 @@ export async function GET(request: Request) {
             price: item.price,
             description: item.description,
             images: item.images,
-            category: item.category, // 영어 키 저장
+            category: item.category,
             seasons: item.seasons,
           }));
 
-          // 기본 아이템 일괄 추가 (실패해도 인증 플로우는 진행)
           await supabase.from("items").insert(rows);
         }
       }

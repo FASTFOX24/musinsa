@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@supabase/auth-helpers-react";
 import { fetchCurrentWeather } from "@/utils/weatherApi";
 import type { WeatherItem } from "@/types/weather";
-import { supabaseBrowserClient } from "@/lib/supabaseBrowserClient";
 import Header from "@/components/Header";
 import * as S from "@/styles/Chat.styles";
 import type { ChatMessage } from "@/types/chat";
@@ -14,7 +13,6 @@ export default function Home() {
   const session = useSession();
   const user = session?.user;
   const router = useRouter();
-  const supabase = supabaseBrowserClient();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +29,6 @@ export default function Home() {
   }, [messages, isLoading]);
 
   useEffect(() => {
-    // 1) 유저별 로컬스토리지에서 기존 채팅 불러오기
     const storageKey =
       typeof window !== "undefined" && user?.id
         ? `style-chat-messages:${user.id}`
@@ -80,7 +77,6 @@ export default function Home() {
         ]);
       }
     } else {
-      // 로그인하지 않았거나 user.id가 없으면 항상 기본 메시지
       setMessages([
         {
           text: "오늘의 날씨와 가지고 있는 옷을 기반으로, GPT가 코디를 함께 고민해줍니다.",
@@ -90,7 +86,6 @@ export default function Home() {
       ]);
     }
 
-    // 2) 날씨 정보 로딩
     const loadWeather = async () => {
       try {
         const weather = await fetchCurrentWeather();
@@ -103,7 +98,6 @@ export default function Home() {
     loadWeather();
   }, [user?.id]);
 
-  // 메시지 변경 시 로컬스토리지에 저장
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (messages.length === 0) return;
@@ -118,40 +112,6 @@ export default function Home() {
 
     window.localStorage.setItem(storageKey, JSON.stringify(serialized));
   }, [messages, user?.id]);
-
-  const handleGoogleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${
-          window.location.origin
-        }/api/auth/callback?redirect=${encodeURIComponent(
-          window.location.pathname
-        )}`,
-      },
-    });
-
-    if (error) {
-      alert("로그인에 실패하였습니다. 다시 시도해주세요.");
-      router.push("/");
-    } else {
-      console.log("리다이렉트 중...", data);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-
-      if (response.ok) {
-        await supabase.auth.signOut();
-      }
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-    }
-  };
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;

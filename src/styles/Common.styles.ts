@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-// 공통 Form 스타일
 export const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,7 +17,6 @@ export const Required = styled.span`
   font-weight: 600;
 `;
 
-// 공통 Input 스타일
 export const Input = styled.input`
   font-size: 16px;
   padding: 12px 16px;
@@ -57,7 +55,6 @@ export const TextArea = styled.textarea`
   }
 `;
 
-// 공통 Button 스타일
 export const PrimaryButton = styled.button`
   font-size: 14px;
   font-weight: 600;
@@ -96,7 +93,6 @@ export const SecondaryButton = styled.button`
   }
 `;
 
-// 공통 Layout 스타일
 export const Container = styled.div`
   background-color: #ffffff;
   min-height: 100vh;
@@ -104,28 +100,12 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-export const MainContent = styled.main`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-
-  @media (min-width: 768px) and (max-width: 1023px) {
-    padding: 30px 20px;
-  }
-
-  @media (min-width: 1024px) {
-    padding: 40px 20px;
-  }
-`;
-
-// 공통 Grid 스타일
 export const Grid = styled.div<{ columns?: number }>`
   display: grid;
-  grid-template-columns: repeat(${props => props.columns || 1}, minmax(0, 1fr));
+  grid-template-columns: repeat(
+    ${(props) => props.columns || 1},
+    minmax(0, 1fr)
+  );
   gap: 12px;
 
   @media (min-width: 768px) and (max-width: 1023px) {
@@ -137,16 +117,30 @@ export const Grid = styled.div<{ columns?: number }>`
   }
 `;
 
-// 공통 Flex 스타일
-export const FlexContainer = styled.div<{ 
-  direction?: 'row' | 'column';
-  justify?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around';
-  align?: 'flex-start' | 'flex-end' | 'center' | 'stretch';
+export const FlexContainer = styled.div<{
+  direction?: "row" | "column";
+  justify?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around";
+  align?: "flex-start" | "flex-end" | "center" | "stretch";
   gap?: string;
 }>`
   display: flex;
-  flex-direction: ${props => props.direction || 'row'};
-  justify-content: ${props => props.justify || 'flex-start'};
-  align-items: ${props => props.align || 'flex-start'};
-  gap: ${props => props.gap || '0'};
+  flex-direction: ${(props) => props.direction || "row"};
+  justify-content: ${(props) => props.justify || "flex-start"};
+  align-items: ${(props) => props.align || "flex-start"};
+  gap: ${(props) => props.gap || "0"};
+`;
+
+export const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #666666;
+  
 `;
