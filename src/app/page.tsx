@@ -6,6 +6,7 @@ import { useSession } from "@supabase/auth-helpers-react";
 import { fetchCurrentWeather } from "@/utils/weatherApi";
 import type { WeatherItem } from "@/types/weather";
 import Header from "@/components/Header";
+import AlertModal from "@/components/AlertModal";
 import * as S from "@/styles/Chat.styles";
 import type { ChatMessage } from "@/types/chat";
 
@@ -17,6 +18,8 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [weatherData, setWeatherData] = useState<WeatherItem[] | null>(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isItemDetailModalOpen, setIsItemDetailModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -113,7 +116,7 @@ export default function Home() {
     window.localStorage.setItem(storageKey, JSON.stringify(serialized));
   }, [messages, user?.id]);
 
-  const handleSend = async () => {
+  const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
     const userMessage = {
@@ -123,8 +126,14 @@ export default function Home() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const messageText = inputValue.trim();
     setInputValue("");
     setIsLoading(true);
+
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+    }, 10000);
 
     try {
       const res = await fetch("/api/fashion-chat", {
@@ -132,10 +141,13 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user?.id,
-          message: userMessage.text,
+          message: messageText,
           weatherData: weatherData || null,
         }),
+        signal: abortController.signal,
       });
+
+      clearTimeout(timeoutId);
 
       const data = await res.json();
 
@@ -148,18 +160,55 @@ export default function Home() {
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error(error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: "⚠️ 응답을 가져오는데 실패했습니다. 다시 시도해주세요!",
-          sender: "bot",
-          timestamp: new Date(),
-        },
-      ]);
+      clearTimeout(timeoutId);
+      
+      if (error instanceof Error && error.name === "AbortError") {
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: "예상 응답 시간을 초과하였습니다.",
+            sender: "bot",
+            timestamp: new Date(),
+          },
+        ]);
+      } else {
+        console.error(error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: "⚠️ 응답을 가져오는데 실패했습니다. 다시 시도해주세요!",
+            sender: "bot",
+            timestamp: new Date(),
+          },
+        ]);
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    await sendMessage();
+  };
+
+  const handleLoginConfirm = () => {
+    setIsLoginModalOpen(false);
+    sendMessage();
+  };
+
+  const handleRouterToItemDetail = (id: string) => {
+    if(!user) {
+      setIsItemDetailModalOpen(true);
+      return;
+    }
+    router.push(`/item/detail/${id}`);
   };
 
   return (
@@ -177,9 +226,7 @@ export default function Home() {
                     {message.recommendedItems.map((item) => (
                       <S.RecommendedItem
                         key={item.id}
-                        onClick={() => {
-                          router.push(`/item/detail/${item.id}`);
-                        }}
+                        onClick={()=>handleRouterToItemDetail(item.id)}
                       >
                         {item.images && item.images.length > 0 ? (
                           <S.RecommendedItemImage
@@ -238,6 +285,22 @@ export default function Home() {
           전송
         </S.SendButton>
       </S.InputContainer>
+      <AlertModal
+        open={isLoginModalOpen}
+        handleClose={() => setIsLoginModalOpen(false)}
+        handleConfirm={handleLoginConfirm}
+        title="로그인 안내"
+        content={`비로그인 시에 나오는 데이터는 임시 데이터이며
+           채팅 내용이 저장되지 않습니다.`}
+      />
+      <AlertModal
+        open={isItemDetailModalOpen}
+        handleClose={() => setIsItemDetailModalOpen(false)}
+        handleConfirm={handleLoginConfirm}
+        title="로그인 안내"
+        content={`샘플 아이템은 상세 페이지를 이용할 수 없습니다.`}
+        confirmText="로그인"
+      />
     </S.PageWrapper>
   );
 }
