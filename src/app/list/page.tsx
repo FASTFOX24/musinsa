@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ItemCard from "@/components/ItemCard";
 import Header from "@/components/Header";
 import SeasonFilter from "@/components/SeasonFilter";
+import AlertModal from "@/components/AlertModal";
 import * as S from "@/styles/HomePage.styles";
 import { useSession } from "@supabase/auth-helpers-react";
 import { type Item } from "@/types/item";
@@ -16,6 +17,7 @@ export default function ListPage() {
   const user = session?.user;
   const [items, setItems] = useState<Item[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<string>("all");
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -64,31 +66,17 @@ export default function ListPage() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-
-      if (response.ok) {
-        await supabase.auth.signOut();
-      }
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-    }
-  };
 
   const handleAddItem = () => {
     if (!user) {
-      const shouldLogin = confirm(
-        "아이템을 추가하려면 로그인이 필요합니다.\n로그인하시겠습니까?"
-      );
-      if (shouldLogin) {
-        handleGoogleLogin();
-      }
+      setIsLoginModalOpen(true);
       return;
     }
     router.push("/item/add");
+  };
+
+  const handleLoginConfirm = () => {
+    handleGoogleLogin();
   };
 
   const handleItemClick = (id: string) => {
@@ -156,6 +144,14 @@ export default function ListPage() {
           </S.ItemsGrid>
         )}
       </S.MainContent>
+      <AlertModal
+        open={isLoginModalOpen}
+        handleClose={() => setIsLoginModalOpen(false)}
+        handleConfirm={handleLoginConfirm}
+        title="로그인 안내"
+        content={`아이템을 추가하려면 로그인이 필요합니다.
+          로그인하시겠습니까?`}
+      />
     </S.Container>
   );
 }

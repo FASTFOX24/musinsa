@@ -8,12 +8,12 @@ export type SeasonFlags = {
 };
 
 export interface ItemFormData {
-  name: string;
-  brand: string;
-  price: string;
-  description: string;
-  images: string[];
-  category?: CategoryKey | "";
+    name: string;
+    brand: string;
+    price: string;
+    description: string;
+    images: string[];
+    category?: CategoryKey | "";
   seasons: SeasonFlags;
 }
 
@@ -43,4 +43,4 @@ export type Item = {
   description: string;
   images: string[];
   seasons: SeasonFlags;
-};
+    };

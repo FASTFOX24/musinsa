@@ -129,6 +129,10 @@ export const MessageText = styled.div<{ $isUser: boolean }>`
   word-wrap: break-word;
   background-color: ${(props) => (props.$isUser ? "#f5f5f5" : "#f0f0f0")};
   color: #000000;
+  
+  @media (min-width : 768px) {
+    font-size: 16px;
+  }
 `;
 
 export const MessageTime = styled.div`
