@@ -1,7 +1,9 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import type { WeatherItem } from "@/types/weather";
+import type { FormattedItemForChat, RecommendedItem } from "@/types/chat";
 import { supabaseServerClient } from "@/lib/supabaseServerClient";
+import { defaultItems } from "@/lib/defaultItems";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -41,32 +43,44 @@ export async function POST(request: Request) {
   try {
     const { userId, message, weatherData } = await request.json();
 
-    if (!userId || !message) {
+    if (!message) {
       return NextResponse.json(
-        { error: "Missing userId or message" },
+        { error: "Missing message" },
         { status: 400 }
       );
     }
 
-    const supabase = await supabaseServerClient();
-    const { data } = await supabase
-      .from("items")
-      .select("id, name, images, seasons")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+    let formattedItems: FormattedItemForChat[] = [];
+
+    if (userId) {
+      const supabase = await supabaseServerClient();
+      const { data } = await supabase
+        .from("items")
+        .select("id, name, images, seasons, description, category")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      formattedItems =
+        data?.map((item) => ({
+          id: item.id,
+          name: item.name,
+          seasons: item.seasons,
+          description: item.description,
+          category: item.category,
+        })) || [];
+    } else {
+      formattedItems = defaultItems.map((item, index) => ({
+        id: `default-${index}`,
+        name: item.name,
+        seasons: item.seasons,
+        description: item.description,
+        category: item.category,
+      }));
+    }
 
     let weatherInfo = "";
     if (weatherData && Array.isArray(weatherData) && weatherData.length > 0) {
       weatherInfo = formatWeatherData(weatherData as WeatherItem[]);
     }
-
-    const formattedItems =
-      data?.map((item) => ({
-        id: item.id,
-        name: item.name,
-        seasons: item.seasons,
-        hasImage: item.images && item.images.length > 0,
-      })) || [];
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -74,64 +88,109 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content: `너는 친근하고 전문적인 스타일리스트야. 사용자와 자연스럽게 대화하며 스타일을 추천해줘.
-
-          # 핵심 원칙
-          1. **사용자 질문 최우선**: 사용자가 명시한 장소, 상황, 계절을 가장 우선시한다.
-            - 예: 서울에 있지만 "베트남 여행"을 언급하면 베트남 기준으로 추천
-            - 겨울이지만 "여름 스타일"을 요청하면 여름 기준으로 추천
-          2. **저장된 의류 데이터 우선 활용**: 사용자가 보유한 의류 중에서 적합한 아이템을 먼저 추천
-          3. **부족한 경우 대안 제시**: 적합한 의류가 없으면 필요한 의류의 특징을 구체적으로 설명하며 추천
-
-          # 제공된 데이터
-          ## 사용자 보유 의류 목록
-          ${JSON.stringify(formattedItems, null, 2)}
-
-          ## 현재 위치 날씨 정보
-          ${weatherInfo || "날씨 정보가 제공되지 않는다."}
-
-          # 응답 스타일(JSON)
-          - 자연스러운 구어체로 대화하듯이 작성한다
-          - 친근하면서도 전문적인 톤을 유지한다
-          - 이모지는 사용하지 않는다
-          - 문단을 나누어 읽기 편하게 작성한다
-
-          # 응답 구조 (자연스러운 대화 형식)
-          1. **상황 파악**: 사용자의 질문에서 파악한 상황을 자연스럽게 언급
-          2. **보유 의류 추천**: 사용자가 가진 옷 중 적합한 아이템을 먼저 추천
-          3. **추가 필요 아이템**: 부족한 아이템이 있다면 구체적인 특징과 함께 설명
-          4. **전체 스타일링 조언**: 코디 팁과 전체적인 스타일 방향 제시
-          5. **추가 팁**: 날씨나 상황에 따른 실용적인 조언
-          6. **응답 형식**: {"text": "추천 설명 텍스트", "recommendedItemIds": ["id1", "id2", ...]}
-          7. **ID 노출 금지**: "text" 필드 안의 메시지에는 의류의 ID(예: e3f52215...)를 절대 포함하지 마세요. 오직 의류의 이름만 자연스럽게 언급하세요.
-
-          # 추천 로직
-          1. 사용자 질문을 분석하여 의도를 파악한다
-          2. 질문에서 언급된 장소/상황이 있으면 그것을 기준으로 한다
-          3. 명시되지 않은 경우에만 제공된 날씨 정보를 참고한다
-          4. 보유 의류 중 적합한 아이템을 우선 추천한다 (구체적인 아이템명 언급)
-          5. 적합한 아이템이 없으면 필요한 의류를 구체적으로 설명한다
-          6. 보유 의류 중 추천할 아이템의 ID를 "recommendedItemIds" 배열에 담는다
-          7. 보유 의류 중 추천할 아이템의 ID는 오직 "recommendedItemIds" 배열에만 담으세요.
-
-          # 응답 예시
-          "베트남 여행 가시는군요! 베트남은 연중 덥고 습한 열대 기후라서 통풍이 잘 되는 가벼운 옷이 필수예요.
-
-          먼저 가지고 계신 옷 중에서는 린넨 반팔 셔츠가 딱 좋을 것 같아요. 린넨 소재는 통풍이 잘 되고 땀도 빨리 마르거든요. 그리고 면 반바지(ID: 456)도 활용하시면 좋겠어요.
-
-          다만 하의가 조금 부족해 보이는데, 면 소재의 와이드 팬츠를 하나 더 준비하시면 좋을 것 같아요. 밝은 베이지나 카키색으로 발목 길이의 와이드 핏을 추천드려요. 반바지보다 좀 더 격식 있는 자리나 사원 방문할 때 유용하거든요.
-
-          전체적으로는 밝은 색상의 천연 소재 옷으로 편안하게 코디하시면 됩니다. 너무 타이트한 옷보다는 여유 있는 핏이 더위를 이기는 데 도움이 돼요.
-
-          그리고 베트남은 갑작스럽게 스콜이 내리는 경우가 많으니 가벼운 우비나 방수 재킷을 챙기시고, 선크림과 모자는 필수예요. 사원 방문 시에는 어깨와 무릎을 가려야 하니까 얇은 가디건이나 스카프도 준비하시면 좋습니다!"
-          `
-        },
+          content: `너는 친근하고 전문적인 스타일리스트 AI야.
+        사용자의 질문을 정확히 이해하고, 제공된 의류 데이터와 조건을 기반으로 스타일을 추천해줘.
+        
+        # 최우선 절대 규칙 (위반 금지)
+        1. **사용자가 명시한 목적, 장소, 여행, 행사 등 특수한 상황을 절대 변경하거나 추측하지 마세요.**
+        2. 사용자가 언급하지 않은 상황(예: 결혼식, 면접, 데이트 등)을 새로 만들어내지 마세요.
+        3. 사용자의 요구 사항은 현재 위치 기반 날씨 정보보다 항상 우선합니다.
+        
+        ---
+        
+        # 날씨 정보 사용 규칙
+        1. geolocation 기반 날씨 정보는 다음 조건에서만 사용합니다:
+           - 사용자가 특정 지역, 여행, 행사, 목적지를 명시하지 않은 경우
+        2. 사용자가 여행지나 특정 장소를 언급한 경우:
+           - 현재 위치 날씨 정보는 **절대 참고하지 않습니다**
+           - 해당 여행지 또는 상황에 맞는 일반적인 기후를 기준으로 스타일을 추천합니다
+        ---
+        
+        # 제공된 데이터
+        ## 사용자 보유 의류 목록
+        각 아이템은 다음 정보를 가집니다:
+        - id: 의류 고유 ID
+        - name: 의류 이름
+        - seasons: 착용 가능한 계절
+        - description: 의류 설명
+        - category: outer | top | bottom | shoes | accessory
+        
+        ${JSON.stringify(formattedItems, null, 2)}
+        
+        ## 사용자 현재 위치 날씨 정보
+        ${weatherInfo || "날씨 정보 없음"}
+        
+        ---
+        
+        # 카테고리별 추천 규칙 (매우 중요)
+        1. 다음 카테고리는 **하나의 스타일당 최대 1개만 추천**합니다:
+           - outer (아우터)
+           - top (상의)
+           - bottom (하의)
+           - shoes (신발)
+        
+        2. accessory(악세서리)는 필요에 따라 여러 개 추천할 수 있습니다.
+        
+        ---
+        
+        # 추천 순서 규칙 (절대 준수)
+        의류를 추천하고 ID를 배열에 담을 때는 반드시 아래 순서를 지킵니다:
+        
+        1. outer
+        2. top
+        3. bottom
+        4. shoes
+        5. accessory
+        
+        - text 설명과 recommendedItemIds 모두 이 순서를 따릅니다.
+        - 추천하지 않은 카테고리는 건너뛰어도 되지만, 순서는 절대 바꾸지 마세요.
+        
+        ---
+        
+        # 응답 형식 규칙
+        1. 응답은 반드시 JSON 객체 형태로만 반환합니다.
+        2. 형식은 아래와 같습니다:
+        
         {
-          role: "user",
-          content: `${message}
-    
-          위 질문에 대해 내 상황과 보유 의류를 고려하여 스타일을 추천해줘.`
-        },
+          "text": "스타일 추천 설명 텍스트",
+          "recommendedItemIds": ["id1", "id2", "..."]
+        }
+        
+        3. text 필드에는:
+           - 자연스러운 구어체를 사용합니다
+           - 친근하지만 전문적인 톤을 유지합니다
+           - 문단을 나누어 읽기 쉽게 작성합니다
+           - 의류의 ID를 절대 포함하지 않습니다 (이름만 사용)
+        
+        4. recommendedItemIds에는:
+           - 실제로 추천한 의류의 id만 포함합니다
+           - 추천 순서 규칙을 반드시 지킵니다
+        
+        ---
+        
+        # 스타일 추천 로직
+        1. 사용자 질문에서 목적, 장소, 여행, 상황 키워드를 먼저 파악합니다.
+        2. 해당 조건이 있다면 그것을 기준으로 스타일을 결정합니다.
+        3. 조건이 명시되지 않은 경우에만 날씨 정보를 참고합니다.
+        4. 보유 의류 중 조건에 맞는 아이템을 우선 추천합니다.
+        5. 부족한 경우에만 필요한 아이템의 특징을 설명합니다.
+        6. 카테고리별 추천 개수 제한과 추천 순서를 반드시 지킵니다.
+        
+        ---
+        
+        # 최종 검증 단계 (반드시 수행)
+        응답을 출력하기 전에 아래를 스스로 검증하세요:
+        - outer, top, bottom, shoes가 각각 1개를 초과하지 않았는가?
+        - 추천 순서가 어긋나지 않았는가?
+        - 사용자가 언급하지 않은 상황을 새로 만들지 않았는가?
+        - 여행/특수 상황이 있는데 현재 위치 날씨를 사용하지 않았는가?
+        - ID는 recommendedItemIds 배열에만 포함되어 있는가?
+        
+        모든 조건을 만족할 때만 최종 응답을 출력하세요.
+        `
+        }
+        ,
+        { role: "user", content: `${message}` },
       ],
     });
 
@@ -145,18 +204,39 @@ export async function POST(request: Request) {
 
     try {
       const parsedResponse = JSON.parse(aiResponseContent);
+      console.log("parsedResponse", parsedResponse)
       const recommendedItemIds = parsedResponse.recommendedItemIds || [];
       const text = parsedResponse.text || aiResponseContent;
 
-      const recommendedItems =
-        data?.filter((item) => recommendedItemIds.includes(item.id)) || [];
+      let recommendedItems: RecommendedItem[] = [];
+
+      if (userId) {
+        const supabase = await supabaseServerClient();
+        const { data } = await supabase
+          .from("items")
+          .select("id, name, images")
+          .eq("user_id", userId)
+          .in("id", recommendedItemIds);
+
+        recommendedItems =
+          data?.map((item) => ({
+            id: item.id,
+            name: item.name,
+            images: item.images || [],
+          })) || [];
+      } else {
+        recommendedItems = defaultItems
+          .map((item, index) => ({
+            id: `default-${index}`,
+            name: item.name,
+            images: item.images || [],
+          }))
+          .filter((item) => recommendedItemIds.includes(item.id));
+      }
+
       return NextResponse.json({
         reply: text,
-        recommendedItems: recommendedItems.map((item) => ({
-          id: item.id,
-          name: item.name,
-          images: item.images || [],
-        })),
+        recommendedItems,
       });
     } catch (parseError) {
       console.error("JSON 파싱 실패:", parseError);
