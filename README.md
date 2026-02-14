@@ -46,21 +46,12 @@
 ---
 
 ## 🎥 서비스 화면
-
-### AI 스타일 추천
-<p align="center">
-  <img src="./public/docs/화면 기록 2026-02-13 오전 3.42.00.gif" width="700"/>
-</p>
-
-### 아이템 관리
-<p align="center">
-  <img src="./assets/demo-item.gif" width="700"/>
-</p>
-
-### 프로필 & 기록
-<p align="center">
-  <img src="./assets/demo-profile.gif" width="700"/>
-</p>
+|**AI 스타일 추천**|**아이템 리스트**|
+|<img width="100%" alt="메인페이지_AI_스타일_추천" src="./public/docs/화면 기록 2026-02-13 오전 3.42.00.gif"/>|<img width="100%" alt="아이템_목록" src="./public/docs/화면 기록 2026-02-14 오후 1.28.24.gif"/>|
+|**신규 데이터 추가**|**데이터 상세 정보**|
+|<img width="100%" alt="신규_데이터_추가_페이지" src="./public/docs/화면 기록 2026-02-14 오후 1.29.49.gif"/>|<img width="100%" alt="데이터_상세_정보_페이지" src="./public/docs/화면 기록 2026-02-14 오후 1.36.20.gif"/>|
+|**데이터 수정**|**프로필**|
+|<img width="100%" alt="데이터_수정_페이지" src="./public/docs/화면 기록 2026-02-14 오후 1.36.20.gif"/>|<img width="100%" alt="프로필_페이지" src="./public/docs/화면 기록 2026-02-14 오후 1.38.49.gif"/>|
 
 ---
 
