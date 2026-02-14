@@ -49,7 +49,7 @@
 
 ### AI 스타일 추천
 <p align="center">
-  <img src="./assets/demo-recommend.gif" width="700"/>
+  <img src="./public/docs/화면 기록 2026-02-13 오전 3.42.00.gif" width="700"/>
 </p>
 
 ### 아이템 관리
