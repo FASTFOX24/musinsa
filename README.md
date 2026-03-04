@@ -1,7 +1,7 @@
 # 👗 AI 스타일링 추천 서비스
 
 <p align="center">
-  <img src="./assets/thumbnail.png" width="700" />
+  <img src="./public/docs/logo.png" width="700" />
 </p>
 
 > 사용자 의류 데이터를 기반으로 실시간 날씨 맞춤형 AI 스타일링 제안 서비스
@@ -82,8 +82,3 @@ OpenAI API + 실시간 날씨 API + 사용자 DB 데이터를 결합하여
 코드량 감소 및 생산성 향상
 
 ---
-
-## 📡 API 구조
-
-<p align="center">
-  <img src="./assets/api-structure.png" widt
